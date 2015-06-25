@@ -196,7 +196,7 @@ In addition to the images, generates a CSV `image_match_generator_report.csv` wi
 The filename `5e499560c9bdd4e745f030f2c32eebb0.0.3.back.png` has the suffix `.0.3.back.png` meaning the axis of view is the zeroth eigenvector, with a three-quarters rotation, from the back.
 
 ## Matching Images
-To use the images for matching, you'll need to install our [image match library](https://bitbucket.org/ascribe/image_match), and [elasticsearch](https://www.elastic.co/guide/en/elasticsearch/guide/current/_installing_elasticsearch.html) along with the elasticsearch [python driver](https://elasticsearch-py.readthedocs.org/en/master/).  You may also want to use the [Anaconda python distribution](http://continuum.io/downloads) if you're not already (if this sounds daunting, let me know and I can help out -- I don't know your python experience!).
+To use the images for matching, you'll need to install our [image match library](https://bitbucket.org/ascribe/image_match), and [elasticsearch](https://www.elastic.co/guide/en/elasticsearch/guide/current/_installing_elasticsearch.html) along with the elasticsearch [python driver](https://elasticsearch-py.readthedocs.org/en/master/) and the [cairosvg package](http://cairosvg.org/).  You may also want to use the [Anaconda python distribution](http://continuum.io/downloads) if you're not already (if this sounds daunting, let me know and I can help out -- I don't know your python experience!).
 
 Once that's all set up, you can use the image match library to build a database and search for matches.  For example, in ipython:
 
@@ -229,4 +229,3 @@ Out[8]:
 ```
 
 Note the one exact match -- `{'dist': 0.0, ...` -- along with a couple distant matches (apparently I put some images from another directory in this index).
-
