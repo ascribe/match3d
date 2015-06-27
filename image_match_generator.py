@@ -55,6 +55,10 @@ class ImagesBuilder(BlenderBase):
         self._set_tracking(obj)
 
         # calculate the moment of inertia matrix Ic
+        # (Use the same assumptions as Blender uses when calculating center of mass:
+        # The object is a collection of point masses. Those point masses are at the face centroids.
+        # The mass of a face = its area times its density. We can assume density=1.)
+		# Those assumptions also make Ic more a property of the shape than of the mesh used to digitize the shape.
         faces = obj.data.polygons
         Ic = self._inertia_matrix(faces)
 
