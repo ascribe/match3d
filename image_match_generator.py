@@ -54,9 +54,11 @@ class ImagesBuilder(BlenderBase):
         self._scale_object(obj)
         self._set_tracking(obj)
 
-        # get eigensystem
-        vertices = [v.co for v in obj.data.vertices.values()]
-        Ic = self._inertia_matrix(vertices)
+        # calculate the moment of inertia matrix Ic
+        faces = obj.data.polygons
+        Ic = self._inertia_matrix(faces)
+
+        # calculate the 3 prinicipal moments of inertia (evals) and vectors on the corresponding principal axes (evecs)
         evals, evecs = eig(Ic)
         evecs = evecs.T
 
@@ -115,9 +117,10 @@ class ImagesBuilder(BlenderBase):
         return M * M
 
     @classmethod
-    def _inertia_matrix(cls, vertices):
-        # see http://en.wikipedia.org/wiki/Moment_of_inertia#Principal_axes
-        return reduce(add, map(lambda v: -1 * cls._matrix_square(cls._bracketB(v)), vertices))
+    def _inertia_matrix(cls, faces):
+        # see http://en.wikipedia.org/wiki/Moment_of_inertia
+        # and https://www.blender.org/api/blender_python_api_2_74_release/bpy.types.MeshPolygon.html
+        return reduce(add, map(lambda f: -1 * f.area * cls._matrix_square(cls._bracketB(f.center)), faces))
 
 
 
