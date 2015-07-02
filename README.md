@@ -178,22 +178,9 @@ Example usage:
 $ blender -b -P image_match_generator.py -- -d ~/***REMOVED***_cad_files_for_ascribe/ -o test_output/
 ```
 
-In addition to the images, generates a CSV `image_match_generator_report.csv` with filename, absolute path, and absolute path to the STL file:
-```
-5e499560c9bdd4e745f030f2c32eebb0.0.0.front.png,/home/ryan/PycharmProjects/3d-match/test_out/5e499560c9bdd4e745f030f2c32eebb0.0.0.front.png,/home/ryan/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045852/model.stl
-5e499560c9bdd4e745f030f2c32eebb0.0.0.back.png,/home/ryan/PycharmProjects/3d-match/test_out/5e499560c9bdd4e745f030f2c32eebb0.0.0.back.png,/home/ryan/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045852/model.stl
-5e499560c9bdd4e745f030f2c32eebb0.0.1.front.png,/home/ryan/PycharmProjects/3d-match/test_out/5e499560c9bdd4e745f030f2c32eebb0.0.1.front.png,/home/ryan/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045852/model.stl
-5e499560c9bdd4e745f030f2c32eebb0.0.1.back.png,/home/ryan/PycharmProjects/3d-match/test_out/5e499560c9bdd4e745f030f2c32eebb0.0.1.back.png,/home/ryan/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045852/model.stl
-5e499560c9bdd4e745f030f2c32eebb0.0.2.front.png,/home/ryan/PycharmProjects/3d-match/test_out/5e499560c9bdd4e745f030f2c32eebb0.0.2.front.png,/home/ryan/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045852/model.stl
-5e499560c9bdd4e745f030f2c32eebb0.0.2.back.png,/home/ryan/PycharmProjects/3d-match/test_out/5e499560c9bdd4e745f030f2c32eebb0.0.2.back.png,/home/ryan/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045852/model.stl
-5e499560c9bdd4e745f030f2c32eebb0.0.3.front.png,/home/ryan/PycharmProjects/3d-match/test_out/5e499560c9bdd4e745f030f2c32eebb0.0.3.front.png,/home/ryan/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045852/model.stl
-5e499560c9bdd4e745f030f2c32eebb0.0.3.back.png,/home/ryan/PycharmProjects/3d-match/test_out/5e499560c9bdd4e745f030f2c32eebb0.0.3.back.png,/home/ryan/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045852/model.stl
-5e499560c9bdd4e745f030f2c32eebb0.1.0.front.png,/home/ryan/PycharmProjects/3d-match/test_out/5e499560c9bdd4e745f030f2c32eebb0.1.0.front.png,/home/ryan/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045852/model.stl
-5e499560c9bdd4e745f030f2c32eebb0.1.0.back.png,/home/ryan/PycharmProjects/3d-match/test_out/5e499560c9bdd4e745f030f2c32eebb0.1.0.back.png,/home/ryan/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045852/model.stl
-...
-```
+In addition to the images, generates a CSV `image_match_generator_report.csv` with filename, absolute path, and absolute path to the STL file.
 
-The filename `5e499560c9bdd4e745f030f2c32eebb0.0.3.back.png` has the suffix `.0.3.back.png` meaning the axis of view is the zeroth eigenvector, with a three-quarters rotation, from the back.
+An output filename like `5e499560c9bdd4e745f030f2c32eebb0.0.3.back.1.png` has the suffix `.0.3.back.1.png` meaning the axis of view is the zeroth eigenvector, with a three-quarters rotation, from the back, and reflected (i.e. that last 1 means reflected; it would be 0 if not reflected).
 
 ## Matching Images
 To use the images for matching, you'll need to install our [image match library](https://bitbucket.org/ascribe/image_match), and [elasticsearch](https://www.elastic.co/guide/en/elasticsearch/guide/current/_installing_elasticsearch.html) along with the elasticsearch [python driver](https://elasticsearch-py.readthedocs.org/en/master/) and the [cairosvg package](http://cairosvg.org/).  You may also want to use the [Anaconda python distribution](http://continuum.io/downloads) if you're not already (if this sounds daunting, let me know and I can help out -- I don't know your python experience!).
@@ -211,6 +198,8 @@ Out[6]: {u'_shards': {u'failed': 0, u'successful': 5, u'total': 5}, u'count': 19
 ```
 
 Now you can test one of the images -- here I just picked one from the files we generated.  In general, you would search over all views and somehow make a composite score (coming soon!)
+
+(Note: The following example uses the old-style output filenames, from before we included the 0/1 for reflections at the end of the filename.)
 
 ```
 In [7]: s = ses.parallel_find('test_out/5e499560c9bdd4e745f030f2c32eebb0.2.3.back.png', n_parallel_words=63)  # generate an iterator for searching
