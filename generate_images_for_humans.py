@@ -6,8 +6,8 @@ import sys
 sys.path.append('.')
 from blenderbase import BlenderBase
 
-from os import walk, remove
-from os.path import join, abspath
+from os import walk, remove, mkdir
+from os.path import join, abspath, sep
 
 # Blender uses its own version of Python (version 3.4 as of June 2015)
 # along with its own selection of Python packages which doesn't include PIL
@@ -27,11 +27,22 @@ class ImagesBuilder(BlenderBase):
 
     def __init__(self, args):
         self.target_dir = abspath(args['target-directory'])
+        self.output_dir = abspath(args['output-directory'])
         # Set subimage resolution = 256 pixels (hardwired).
         # For some reason, I only get 256 if I put double that
         # as the argument for __init__
         self.sub_res = 200
         super(ImagesBuilder, self).__init__(2 * self.sub_res)
+
+        # initialize the directory structure
+        try:
+            mkdir(self.output_dir)
+        except OSError as e:
+            # directory may already exist
+            if e.errno == 17:
+                pass
+            else:
+                raise e
 
     def run(self):
         for stl_name in self._get_filesnames_of_type(self.target_dir):
@@ -91,10 +102,11 @@ class ImagesBuilder(BlenderBase):
                 z = z - dz
                 lon = lon + dlon
 
-        # Save the final image to the directory where we got
-        # the associated STL file.
-        final_img_path = stl_name.replace('model.stl', 'image_for_humans.png')
-        print('final_img_path = {}'.format(final_img_path))
+        # Save the final image to the output directory.
+        # Name the image file after its parent directory.
+        parent_dir_name = stl_name.rsplit(sep, 2)[1]
+        final_img_fname = parent_dir_name + '.png'
+        final_img_path = join(self.output_dir, final_img_fname)
         final_img.save(final_img_path)
 
     @staticmethod
@@ -120,11 +132,12 @@ script_args = all_arguments[double_dash_index + 1:]
 parser.add_argument('target-directory', metavar='d',
                     type=str,
                     help='directory containing directories containing STL files')
+parser.add_argument('output-directory', metavar='o',
+                    type=str,
+                    help='directory where images will be written')
 
-# get the script args
+# get the script args and run
 parsed_script_args, _ = parser.parse_known_args(script_args)
-
-# fire awaaay
 args = vars(parsed_script_args)
 builder = ImagesBuilder(args)
 builder.run()
