@@ -26,6 +26,12 @@ class BlenderBase():
         cns.up_axis = 'UP_Y'
 
     @staticmethod
+    def _set_background_colors(colors_string):
+        scn = bpy.context.scene
+        if colors_string == 'white':
+            scn.world.horizon_color = (1.0, 1.0, 1.0)
+
+    @staticmethod
     def _clear_scene():
         # clear scene
         bpy.ops.object.mode_set(mode='OBJECT')
