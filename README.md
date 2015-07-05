@@ -227,8 +227,6 @@ Note the one exact match -- `{'dist': 0.0, ...` -- along with a couple distant m
 
 This Python Blender script produces images, one image per STL file, showing nine renderings of the 3D object pasted into a single image as a 3x3 collage. The idea is to have one image that can give a human a good sense of what the 3D object is. The camera positions are chosen to be fairly evenly distributed on a sphere (not randomly).
 
-Currently, the final image is hardwired to be 600 x 600 (with each sub-image being 200 x 200).
-
 ## Usage
 
 Example usage:
