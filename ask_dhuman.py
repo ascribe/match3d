@@ -78,7 +78,7 @@ class SimAsker(wx.Frame):
         print "You selected", user_selection
 
         print "Storing that at key ", self.pair_key
-        self.d_human.set_value_at(self.pair_key, user_selection)
+        self.d_human.set_value_at_key(self.pair_key, user_selection)
 
         self.loadNewImages()
 

@@ -18,7 +18,6 @@ If you want one for big sets:
 """
 
 import shelve
-import psutil
 
 from os import listdir
 from os.path import join, basename, splitext
@@ -91,6 +90,7 @@ class DHuman:
             img.paste(img1, (0, 0))
             img.paste(img2, (tn_size, 0))
             img.show()
+            print "Showing {} and {}".format(key_list[0], key_list[1])
             # Ask for human input
             human_answer = ''
             accepted_responses = ['V', 'S', 'D', 'v', 's', 'd']
@@ -100,10 +100,13 @@ class DHuman:
                     print "You entered {}".format(human_answer)
                     print "but accepted responses are {}".format(accepted_responses)
 
-            self.internal_dict[key] = human_answer.upper()
+            value_to_save = human_answer.upper()
+            self.internal_dict[key] = value_to_save
             del self.unwritten_keys[random_index]
 
-    def set_value_at(self, key, value):
+            print "Saved the value '{}' at the key '{}'".format(value_to_save, key)
+
+    def set_value_at_key(self, key, value):
         """Set the value of DHuman at the given key. Used by external GUIs.
         Be careful! Note that it doesn't check if the key is valid. The
         assumption is that the external GUI got the key from pair_to_compare().
