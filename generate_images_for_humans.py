@@ -31,7 +31,7 @@ class ImagesBuilder(BlenderBase):
         # Set subimage resolution = 256 pixels (hardwired).
         # For some reason, I only get 256 if I put double that
         # as the argument for __init__
-        self.sub_res = 200
+        self.sub_res = 116
         super(ImagesBuilder, self).__init__(2 * self.sub_res)
 
         # initialize the directory structure
