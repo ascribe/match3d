@@ -8,9 +8,11 @@
 
 Given a target STL file (3D model), this script generates a training set of images containing:
 
-1. num-examples images of the target 3D model,
-2. (optionally) num-examples images of other 3D models, and 
-3. (optionally) num-examples other images.
+1. n images of the target 3D model,
+2. (optionally) n images of other 3D models, and 
+3. (optionally) n other images.
+
+where n is one of the command-line arguments (the number of samples).
 
 Please be sure to have Blender 2.7+ installed (previous versions lack numpy support).
 
