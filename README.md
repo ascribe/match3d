@@ -1,14 +1,20 @@
 ## Table of contents
-- 3D Training Set Generator
+- Training Set Generator #1
 - Image Match Generator
 - Generator of Images for Humans
 
-# 3D Training Set Generator
+# Training Set Generator #1
 ## Overview
 
-Currently a single script used to generate training sets for matching of 3D models on images. Can output a mixure of views on the target model, as well as views on other (confusion) models. Can also include non-3D model images -- see examples below.  Please be sure to have Blender 2.7+ installed (previous versions lack numpy support).
+Given a target STL file (3D model), this script generates a training set of images containing:
 
-To see the usage, use: `$ blender -b -P test_set_generator.py -- -h`
+1. images of the target 3D model,
+2. (optionally) images of other 3D models, and 
+3. (optionally) other images.
+
+Please be sure to have Blender 2.7+ installed (previous versions lack numpy support).
+
+To see the usage, use: `$ blender -b -P training_set_generator_1.py -- -h`
 
 	usage: blender [-h] [--stl-directory STL_DIRECTORY]
 		       [--image-directory IMAGE_DIRECTORY] [--resolution RESOLUTION]
@@ -39,7 +45,7 @@ To see the usage, use: `$ blender -b -P test_set_generator.py -- -h`
 				lighting
 
 
-ALL CALLS TO THE SCRIPT must begin with `blender -b -P test_set_generator.py --` which executes the python script as a blender script. `-b` tells blender to run in the background (no GUI) and `-P` tells it to accept a python script.  Arguments to `test_set_generator.py` go after the `--`.
+ALL CALLS TO THE SCRIPT must begin with `blender -b -P training_set_generator_1.py --` which executes the python script as a blender script. `-b` tells blender to run in the background (no GUI) and `-P` tells it to accept a python script.  Arguments to `training_set_generator_1.py` go after the `--`.
 
 ## Examples
 
@@ -48,10 +54,10 @@ ALL CALLS TO THE SCRIPT must begin with `blender -b -P test_set_generator.py --`
 A target model, output directory, and number of images is always required.  The simplest call looks e.g. like this:
 
 ```
-$ blender -b -P test_set_generator.py -- ~/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl output/ 1
+$ blender -b -P training_set_generator_1.py -- ~/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl output/ 1
 ```
 
-Where `~/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl` is the target file, `output/` is the output directory (it will be created if it doesn't exists) and `1` is the number of samples.
+Where `~/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl` is the target file, `output/` is the output directory (it will be created if it doesn't exist) and `1` is the number of samples.
 
 This produces rather uninteresting output: a folder `output/` containing three files:
 ```
@@ -71,7 +77,7 @@ Neat! We also get two CSVs, but let's save those for the next example.
 You can't do much machine learning on one example from one angle, so let's make some more:
 
 ```
-blender -b -P test_set_generator.py -- ~/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl output/ 3 --transforms rotate lighting
+blender -b -P training_set_generator_1.py -- ~/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl output/ 3 --transforms rotate lighting
 ```
 
 Notice here we've changed the number of outputs from 1 to 3, and added `--transforms rotate lighting`.  `--transforms` tells which random transforms to apply.  Currently, only `rotate` and `lighting` are implemented, but we can very easily add more.
@@ -106,7 +112,7 @@ We probably want to mix in some images from other models though, to confuse our 
 The script can search a target directory recursively for other `.stl` models to use.  It will ignore any files with the same absolute path as the target file.
 
 ```
- $ blender -b -P test_set_generator.py -- ~/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl output/ 3 --transforms rotate lighting --stl-directory ~/***REMOVED***_cad_files_for_ascribe/
+ $ blender -b -P training_set_generator_1.py -- ~/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl output/ 3 --transforms rotate lighting --stl-directory ~/***REMOVED***_cad_files_for_ascribe/
 ```
 Here I've added `--stl-directory ~/***REMOVED***_cad_files_for_ascribe/`.  This will randomly choose and render `n=3` images from all the `.stl` files under `stl-directory`.
 
@@ -138,7 +144,7 @@ If you increase `n` to 1000, you'll end up with a thousand views on the target m
 ### Other images
 You can confuse your learner further with any additional images if you like. Just add the `--image-directory` option.
 ```
-$ blender -b -P test_set_generator.py -- ~/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl output/ 3 --transforms rotate lighting --stl-directory ~/***REMOVED***_cad_files_for_ascribe/ --image-directory ~/oxbuild/
+$ blender -b -P training_set_generator_1.py -- ~/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl output/ 3 --transforms rotate lighting --stl-directory ~/***REMOVED***_cad_files_for_ascribe/ --image-directory ~/oxbuild/
 ```
 This will add some image paths to `ground_truth.csv`.  By default, the images are not copied but I plan to add a flag for that soon.
 ```
