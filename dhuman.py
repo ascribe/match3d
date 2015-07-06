@@ -20,7 +20,7 @@ If you want one for big sets:
 import shelve
 
 from os import listdir
-from os.path import join, basename, splitext
+from os.path import join, basename, splitext, abspath
 from random import randrange
 from PIL import Image
 
@@ -29,7 +29,7 @@ class DHuman:
 
     def __init__(self, images_path):
         self.images_path = images_path
-        self.shelf_path = join(images_path, 'dhuman_db')
+        self.shelf_path = abspath(join(images_path, 'dhuman_db'))
         # Open the shelf / database / persistent dictionary
         self.internal_dict = shelve.open(self.shelf_path)
         # Make a list of all image files in images_path
@@ -65,8 +65,8 @@ class DHuman:
             random_index = randrange(0, len(self.unwritten_keys))
             key = self.unwritten_keys[random_index]
             key_list = key.split(',')
-            img_path1 = join(self.images_path, key_list[0])
-            img_path2 = join(self.images_path, key_list[1])
+            img_path1 = abspath(join(self.images_path, key_list[0]))
+            img_path2 = abspath(join(self.images_path, key_list[1]))
             return key, img_path1, img_path2
 
     def compare_then_save(self):
@@ -79,8 +79,8 @@ class DHuman:
             random_index = randrange(0, len(self.unwritten_keys))
             key = self.unwritten_keys[random_index]
             key_list = key.split(',')
-            img_path1 = join(self.images_path, key_list[0])
-            img_path2 = join(self.images_path, key_list[1])
+            img_path1 = abspath(join(self.images_path, key_list[0]))
+            img_path2 = abspath(join(self.images_path, key_list[1]))
             img1 = Image.open(img_path1)
             img2 = Image.open(img_path2)
             tn_size = 400  # thumbnail size

@@ -109,7 +109,7 @@ class ImagesBuilder(BlenderBase):
         # Name the image file after its parent directory.
         parent_dir_name = stl_name.rsplit(sep, 2)[1]
         final_img_fname = parent_dir_name + '.png'
-        final_img_path = join(self.output_dir, final_img_fname)
+        final_img_path = abspath(join(self.output_dir, final_img_fname))
         final_img.save(final_img_path)
 
     @staticmethod
