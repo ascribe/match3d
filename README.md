@@ -154,9 +154,12 @@ This will add some image paths to `ground_truth.csv`.  By default, the images ar
 ```
 
 # Image Match Generator
-This generates oriented images of 3D models. It can be used to match STLs based on images.
 
-48 images are generated per model (3 eigenvectors x 2 viewing directions x 4 viewing angles x 2 reflections). (The "2 reflections" are the original and its reflection.)
+Given a directory whose subdirectories contain STL files (3D models), Image Match Generator will generate a standard set of 48 images per STL file. The set is "standard" in the sense that if one were to model the same shape with a different mesh (a different STL file), the 48 images generated for *it* would be roughly the same.
+
+The images get stored in the specified output directory.
+
+The number 48 comes from the fact that for each model, an image is generated for each of 3 eigenvectors x 2 directions per eigenvector x 4 viewing angles x 2 reflections. (The "2 reflections" are the original and its reflection.)
 
 To see usage:`$ blender -b -P image_match_generator.py -- -h`
 
