@@ -8,7 +8,7 @@
 
 Given a target STL file (3D model), this script generates a training set of images containing:
 
-1. n images of the target 3D model,
+1. nu images of the target 3D model,
 2. (optionally) n images of other 3D models, and 
 3. (optionally) n other images.
 
