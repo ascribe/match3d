@@ -17,9 +17,9 @@ from os.path import join, abspath, sep
 # Conda makes it easy to switch between Python 2.7 and 3.4 environments.
 path_to_PIL = '/home/troy/miniconda3/envs/anapy34/lib/python3.4/site-packages'
 sys.path.append(path_to_PIL)
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
 
-from math import cos, sin, sqrt
+from math import cos, sin, sqrt, floor
 import argparse
 
 
@@ -105,9 +105,19 @@ class ImagesBuilder(BlenderBase):
                 z = z - dz
                 lon = lon + dlon
 
+        # Get the name of the parent directory = object ID
+        parent_dir_name = stl_name.rsplit(sep, 2)[1]
+
+        # Add a text label to the image
+        draw = ImageDraw.Draw(final_img)
+        font1 = ImageFont.truetype("DroidSansMono.ttf", 10)
+        textwidth, textheight = draw.textsize(parent_dir_name)
+        x_pos = floor(((3 * self.sub_res) - textwidth)/2)
+        y_pos = (3 * self.sub_res) - textheight - 1
+        draw.text((x_pos, y_pos), parent_dir_name, (30, 30, 30), font=font1)
+
         # Save the final image to the output directory.
         # Name the image file after its parent directory.
-        parent_dir_name = stl_name.rsplit(sep, 2)[1]
         final_img_fname = parent_dir_name + '.png'
         final_img_path = abspath(join(self.output_dir, final_img_fname))
         final_img.save(final_img_path)
