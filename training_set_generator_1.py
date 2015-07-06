@@ -188,7 +188,7 @@ script_args = all_arguments[double_dash_index + 1:]
 # define our args
 parser.add_argument('target', metavar='t', type=str, help='path to target STL file')
 parser.add_argument('output-dir', metavar='d', type=str, help='directory to store training set')
-parser.add_argument('num-examples', metavar='n', type=int, help='number of samples to generate for each class (true, other model, other image)')
+parser.add_argument('num-examples', metavar='n', type=int, help='number of samples to generate for each class')
 
 parser.add_argument('--stl-directory', type=str, help='directory containing stl files, which will be searched recursively. the target stl will be ignored')
 parser.add_argument('--image-directory', type=str, help='directory containing image files (will search recursively for images)')

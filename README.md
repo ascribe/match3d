@@ -8,9 +8,9 @@
 
 Given a target STL file (3D model), this script generates a training set of images containing:
 
-1. images of the target 3D model,
-2. (optionally) images of other 3D models, and 
-3. (optionally) other images.
+1. num-examples images of the target 3D model,
+2. (optionally) num-examples images of other 3D models, and 
+3. (optionally) num-examples other images.
 
 Please be sure to have Blender 2.7+ installed (previous versions lack numpy support).
 
@@ -26,8 +26,7 @@ To see the usage, use: `$ blender -b -P training_set_generator_1.py -- -h`
 	positional arguments:
 	  t                     path to target STL file
 	  d                     directory to store training set
-	  n                     number of samples to generate for each class (true,
-				other model, other image)
+	  n                     number of samples to generate for each class
 
 	optional arguments:
 	  -h, --help            show this help message and exit

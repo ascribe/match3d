@@ -41,7 +41,6 @@ class ImagesBuilder(BlenderBase):
         if not resolution:
             resolution = 1024
         super(ImagesBuilder, self).__init__(resolution)
-        self.scene.objects['Lamp'].location = 5 * Vector([1, 0, 0])
 
         # initialize the directory structure
         try:
@@ -98,9 +97,9 @@ class ImagesBuilder(BlenderBase):
             # 3).front_or_back.reflection(0 or 1).png
 
             for direction in [1, -1]:
-                self.scene.objects['Lamp'].location = 5 * \
-                    Vector([direction, 0, 0])
-                self.scene.camera.location = 5 * Vector([direction, 0, 0])
+                cam_pos = 5 * Vector([direction, 0, 0])
+                self.scene.camera.location = cam_pos
+                self.scene.objects['Lamp'].location = cam_pos
                 stlhash = md5(stl_name.encode('utf-8')).hexdigest()
                 if direction == 1:
                     dirstr = 'front'
