@@ -1,6 +1,6 @@
 # About dhuman and ask_dhuman
 
-For any pair (i,j) of objects or images, we can ask a human to compare them and say if they're very similar ('V'), similar ('S'), or different ('D'). It's like a distance function: d_human(i,j). It could be used to create a search engine, or to evaluate other search engines.
+For any pair (i,j) of objects or images, we can ask a human to compare them and say if they're very similar ('V'), similar ('S'), or different ('D'). It's like a distance function: d_human(i,j). It can be used to evaluate the search engine results from a search engine (for a set where dhuman(i,j) is known): an ideal search engine would return very similar items first, followed by similar ones, followed by different ones.
 
 The images shown to the humans should give a good overview of the object, with views from many different directions. That's why I wrote generate_images_for_humans.py. The documentation for that is in the README.md file.
 
