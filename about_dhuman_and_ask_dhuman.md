@@ -1,7 +1,4 @@
-
-About dhuman and ask_dhuman
-
-(To read this on Bitbucket without that annoying horizonal scrollbar, just click on the "Raw" button in the top right corner.)
+# About dhuman and ask_dhuman
 
 For any pair (i,j) of objects or images, we can ask a human to compare them and say if they're very similar ('V'), similar ('S'), or different ('D'). It's like a distance function: d_human(i,j). It could be used to create a search engine, or to evaluate other search engines.
 
@@ -19,6 +16,7 @@ I wrote it in a Python 2.7 conda environment, with the Anaconda packages install
 
 Below is an example interactive session. Note that the image gets shown in a separate window, using whatever PIL's Image.show() function calls. In my case, it's imagemagick.
 
+```
 (anapy27)troy@hp-ubuntu:~/repos/3d-match$ ipython
 Python 2.7.10 |Anaconda 2.2.0 (64-bit)| (default, May 28 2015, 17:02:03) 
 Type "copyright", "credits" or "license" for more information.
@@ -50,6 +48,7 @@ Out[5]: '?'
 In [6]: dh.close()
 
 In [7]: quit()
+```
 
 If you use dhuman in interactive mode, don't forget to close when you're done. That makes sure the dictionary is all stored to disk. It stores the dictionary in the images directory, in files named 'dhuman_db.bak', 'dhuman_db.dat', and 'dhuman_db.dir'.
 
@@ -57,7 +56,9 @@ Using interactive mode to compare images and store new values in d_human(i,j) is
 
 ask_dhuman.py is a simple GUI frontend that keeps the focus in the GUI at all times. You can use it to rapidly compare images (and save the comparison). Here's an example call to ask_dhuman.py:
 
+```
 $ python ask_dhuman.py -i ./testset1-images/
+```
 
 To end a session with the ask_dhuman.py GUI, just close the GUI window. It will close the shelf.
 
