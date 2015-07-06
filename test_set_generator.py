@@ -2,9 +2,9 @@
 
 Requires blender 2.7+
 
-Usage example:
-
+Usage example: see README.md
 """
+
 __author__ = 'ryan'
 
 # put modules in path
@@ -149,8 +149,12 @@ class TrainingSetGenerator(BlenderBase):
     @staticmethod
     def _random_point_on_sphere():
         # returns a point from a uniform distribution over the unit sphere
-        random_gaussians = np.random.normal(size=3)
-        return random_gaussians/np.linalg.norm(random_gaussians)
+        length = 0.0
+        while length < 0.001:
+            # prevent division by zero, and overflow
+            random_gaussians = np.random.normal(size=3)
+            length = np.linalg.norm(random_gaussians)
+        return random_gaussians/length
 
     def _random_rotate_object(self, obj):
         axis = self._random_point_on_sphere()
