@@ -156,7 +156,7 @@ This will add some image paths to `ground_truth.csv`.  By default, the images ar
 # Image Match Generator
 This generates oriented images of 3D models. It can be used to match STLs based on images.
 
-24 images are generated per model (3 eigenvectors x 2 viewing directions x 4 viewing angles)
+48 images are generated per model (3 eigenvectors x 2 viewing directions x 4 viewing angles x 2 reflections). (The "2 reflections" are the original and its reflection.)
 
 To see usage:`$ blender -b -P image_match_generator.py -- -h`
 
@@ -172,7 +172,7 @@ To see usage:`$ blender -b -P image_match_generator.py -- -h`
 	  -h, --help            show this help message and exit
 	  --resolution RESOLUTION
 				resolution of renderings (n x n)
-	Error: Not freed memory blocks: 215
+
 ## Generating Images
 Example usage:
 ```
