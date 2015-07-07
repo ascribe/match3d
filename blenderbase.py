@@ -16,8 +16,11 @@ class BlenderBase():
         self.scene.camera.location = 5 * Vector([1, 0, 0])
 
         # render resolution
-        self.scene.render.resolution_x = resolution
-        self.scene.render.resolution_y = resolution
+        # If you want the final rendered image to be N x N pixels,
+        # then you need to set resolution_x=2*N and resolution_y=2*N.
+        # Why? That's not so clear. But it works.
+        self.scene.render.resolution_x = 2 * resolution
+        self.scene.render.resolution_y = 2 * resolution
 
     def _set_tracking(self, obj):
         cns = self.scene.camera.constraints.new('TRACK_TO')

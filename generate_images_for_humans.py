@@ -32,10 +32,7 @@ class ImagesBuilder(BlenderBase):
         # in the 3x3 grid. The width of the final image will be
         # three times the subimage resolution.
         self.sub_res = 116
-        # I found that if I want to get a certain-width rendering out
-        # of Blender, I have to put *double* that width in the
-        # __init__ call below:
-        super(ImagesBuilder, self).__init__(2 * self.sub_res)
+        super(ImagesBuilder, self).__init__(self.sub_res)
 
         # initialize the directory structure
         try:
