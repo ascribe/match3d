@@ -81,7 +81,7 @@ You can't do much machine learning on one example from one angle, so let's make 
 blender -b -P training_set_generator_1.py -- ~/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl output/ 3 --transforms rotate lighting
 ```
 
-Notice here we've changed the number of outputs from 1 to 3, and added `--transforms rotate lighting`.  `--transforms` tells which random transforms to apply.  Currently, only `rotate` and `lighting` are implemented, but we can very easily add more.
+Notice here we've changed the number of outputs from 1 to 3, and added `--transforms rotate lighting`.  `--transforms` tells which random transforms to apply.  Currently, only `rotate`, `lighting`, and `reflect` are implemented, but we can very easily add more.
 
 Looking at the output:
 ```
@@ -105,7 +105,7 @@ stl_path	render_path	_random_rotate_object_z_axis	_random_rotate_object_y_axis	_
 /home/ryan/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl	/home/ryan/PycharmProjects/3d-match/output/56b2e246e5bfeb1a0ad363674d8dc6a1.1.png	-0.515433487249	-0.856211032052	-0.0350854501814	1.4480763197907711	0.0940595360946	3.79531168129	3.25373048139
 /home/ryan/***REMOVED***_cad_files_for_ascribe/***REMOVED***_cad_files_for_ascribe/sn-10045871/model.stl	/home/ryan/PycharmProjects/3d-match/output/56b2e246e5bfeb1a0ad363674d8dc6a1.2.png	0.728741633166	-0.668272784427	0.14948952366	5.989241688199174	-4.62283078663	1.61107560989	1.01679442239
 ```
-Here we have bunch of imformation about what was done, and to what, including which model and the names of the output images (note the rotation information is cumulative, I should fix it to be absolute).
+Here we have bunch of information about what was done, and to what, including which model and the names of the output images.
 
 We probably want to mix in some images from other models though, to confuse our models.
 
