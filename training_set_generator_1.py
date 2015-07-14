@@ -1,4 +1,4 @@
-"""Blender script for generating training sets
+"""Blender script for generating training sets, test sets, or both at once.
 
 Requires blender 2.7+
 

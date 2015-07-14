@@ -14,6 +14,8 @@ Given a target STL file (3D model), this script generates a training set of imag
 
 where n is one of the command-line arguments (the number of samples).
 
+Note that while it's called a "training set generator," it can also generate a test set, or both a training set and a test set at the same time.
+
 Please be sure to have Blender 2.7+ installed (previous versions lack numpy support).
 
 To see the usage, use: `$ blender -b -P training_set_generator_1.py -- -h`
