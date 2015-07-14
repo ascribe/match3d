@@ -4,6 +4,7 @@ import tempfile
 import elasticsearch
 from os import execvp
 
+
 class ThreeDSearch():
     def __init__(self, _stl_directory_name):
         self.output_directory = None
@@ -12,15 +13,17 @@ class ThreeDSearch():
     def generate_images(self):
         self.output_directory = tempfile.mkdtemp()
 
-        args = ['-b', '-p', 'image_match_generator.py', '--',
+        args = ['blender',
+                '-b', '-P', 'image_match_generator.py', '--',
                 '-d', self.stl_directory_name,
                 '-o', self.output_directory]
 
         execvp('blender', args)
+        return self.output_directory
 
     def search_images(self):
         pass
 
     def run(self):
-        self.generate_images()
-        self.search_images()
+        print self.generate_images()
+        #  self.search_images()
