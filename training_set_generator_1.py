@@ -11,7 +11,7 @@ __author__ = 'ryan'
 import sys
 sys.path.append('.')
 from blenderbase import BlenderBase
-from mathutils import Matrix, Vector    # blender-specific classes
+from mathutils import Matrix, Vector, Quaternion   # blender-specific classes
 
 from os import mkdir, walk
 from hashlib import md5
@@ -24,6 +24,15 @@ import numpy as np
 import argparse
 import csv
 
+# Blender uses its own version of Python (version 3.4 as of June 2015)
+# along with its own selection of Python packages which doesn't include PIL
+# so I added the location of PIL on my machine to the Python path.
+# Note that you need a version of PIL compatible with Python 3.4.
+# I'm using the one that comes bundled with Anaconda python=3.4.
+path_to_PIL = '/home/troy/miniconda3/envs/anapy34/lib/python3.4/site-packages'
+sys.path.append(path_to_PIL)
+from PIL import Image
+
 
 class TrainingSetGenerator(BlenderBase):
     def __init__(self, args):
@@ -34,6 +43,7 @@ class TrainingSetGenerator(BlenderBase):
 
         # transforms
         self.TRANSFORM_DICT = {'rotate': self._random_rotate_object,
+                               'reflect': self._random_reflect_object,
                                'lighting': self._random_lighting,
                                'none': self._no_transform}
 
@@ -117,14 +127,20 @@ class TrainingSetGenerator(BlenderBase):
             row = dict()
             row['stl_path'] = abspath(stl_path)
             path_base = md5(stl_path.encode('utf-8')).hexdigest()
+            do_reflection = False
             for transform in self.transforms:
                 transform_name = self.TRANSFORM_DICT[transform].__name__
                 transform_vals = self.TRANSFORM_DICT[transform](obj)
                 for key in transform_vals.keys():
                     row['_'.join([transform_name, key])] = transform_vals[key]
+                    if (key == 'reflected') and (transform_vals[key] == 1):
+                        do_reflection = True
 
-            render_path = join(self.output_dir, '{}.{}.png'.format(path_base, i))
+            render_path = join(self.output_dir,
+                               '{}.{}.png'.format(path_base, i))
             self._render_scene(render_path)
+            if do_reflection:
+                self._reflect_image_file(render_path)
             row['render_path'] = abspath(render_path)
             if report_file:
                 if not hasattr(self, 'report_writer'):
@@ -147,28 +163,57 @@ class TrainingSetGenerator(BlenderBase):
                     yield abspath(join(t[0], filename))
 
     @staticmethod
-    def _random_point_on_sphere():
+    def _random_point_on_sphere(n=3):
         # returns a point from a uniform distribution over the unit sphere
+        # in R^n
         length = 0.0
         while length < 0.001:
             # prevent division by zero, and overflow
-            random_gaussians = np.random.normal(size=3)
+            random_gaussians = np.random.normal(size=n)
             length = np.linalg.norm(random_gaussians)
         return random_gaussians/length
 
+    @staticmethod
+    def _reflect_image_file(file_path):
+        """Use PIL to open the specified image file, reflect it,
+        and save it back to disk."""
+        img = Image.open(file_path)
+        img.transpose(Image.FLIP_LEFT_RIGHT)
+        img.save(file_path)
+
     def _random_rotate_object(self, obj):
-        axis = self._random_point_on_sphere()
-        angle = np.random.random() * 2 * np.pi
-        obj.data.transform(Matrix.Rotation(angle, 4, axis))
-        return {'x_axis': axis[0],
-                'y_axis': axis[1],
-                'z_axis': axis[2],
-                'angle': angle}
+        # Generating a random rotation uniformly in the set of rotations
+        # turns out to be tricky. You can't just generate a random axis
+        # on the unit sphere plus a random rotation in [0, 2*pi]. See:
+        # Graphics Gems III, pp. 124-132. (It's free online.) Or see:
+        # en.wikipedia.org/wiki/Rotation_matrix#Uniform_random_rotation_matrices
+        # Instead, we generate a uniformly-distributed unit quaternion:
+        v = self._random_point_on_sphere(4)
+        quat = Quaternion((v[0], v[1], v[2], v[3]))
+        # Convert that unit quaternion to a rotation matrix:
+        rot_matrix = quat.to_matrix()
+        # Do the transform
+        obj.data.transform(rot_matrix.to_4x4())
+        # Old way: obj.data.transform(Matrix.Rotation(angle, 4, axis))
+        # We don't have to rotate the object back to its initial rotation
+        # later. It's okay to just keep piling on more rotations. The
+        # distribution will stay uniform on the space of rotations.
+        return {'quat_w': quat.w,
+                'quat_x': quat.x,
+                'quat_y': quat.y,
+                'quat_z': quat.z}
+
+    def _random_reflect_object(self, obj):
+        # Note that we don't actually do any reflection now.
+        # We wait until the image is rendered and maybe reflect that.
+        # 0 means we don't reflect, 1 means we do.
+        do_reflection = 0 if (np.random.random() < 0.5) else 1
+        return {'reflected': do_reflection}
 
     def _random_lighting(self, obj):
         pos = [-1, 0, 0]
         while pos[0] < 0:
-            pos = 5 * self._random_point_on_sphere()
+            pos = 5 * self._random_point_on_sphere(3)
         self.scene.objects['Lamp'].location = pos
         return {'pos_x': pos[0],
                 'pos_y': pos[1],
