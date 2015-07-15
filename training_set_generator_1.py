@@ -24,13 +24,8 @@ import numpy as np
 import argparse
 import csv
 
-# Blender uses its own version of Python (version 3.4 as of June 2015)
-# along with its own selection of Python packages which doesn't include PIL
-# so I added the location of PIL on my machine to the Python path.
-# Note that you need a version of PIL compatible with Python 3.4.
-# I'm using the one that comes bundled with Anaconda python=3.4.
-path_to_PIL = '/home/troy/miniconda3/envs/anapy34/lib/python3.4/site-packages'
-sys.path.append(path_to_PIL)
+# Note: Be sure to use a version of PIL that works with Python 3
+# (which is the version of Python that Blender uses)
 from PIL import Image
 
 
