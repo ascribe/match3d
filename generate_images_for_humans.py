@@ -4,6 +4,8 @@ to enable humans to compare 3D models.
 
 import sys
 sys.path.append('.')
+sys.path.append('./hidden_PIL/')
+
 from blenderbase import BlenderBase
 
 from os import walk, remove, mkdir
