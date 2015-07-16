@@ -2,8 +2,12 @@ __author__ = 'ryan'
 
 import tempfile
 import elasticsearch
-from os import execvp
+from image_match.signature_database import SignatureES
+from os import spawnvp
+from os import P_WAIT
+from os.path import expanduser, abspath
 
+INDEX_NAME = '***REMOVED***_tester'
 
 class ThreeDSearch():
     def __init__(self, _stl_directory_name):
@@ -15,15 +19,17 @@ class ThreeDSearch():
 
         args = ['blender',
                 '-b', '-P', 'image_match_generator.py', '--',
-                '-d', self.stl_directory_name,
-                '-o', self.output_directory]
+                '-d', abspath(expanduser(self.stl_directory_name)),
+                '-o', self.output_directory,
+                '--no-rotations',
+                '--only-front-view']
 
-        execvp('blender', args)
+        spawnvp(P_WAIT, 'blender', args)
         return self.output_directory
 
     def search_images(self):
         pass
 
     def run(self):
-        print self.generate_images()
+        path = self.generate_images()
         #  self.search_images()
