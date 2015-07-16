@@ -10,6 +10,8 @@ __author__ = 'ryan'
 # put modules in path
 import sys
 sys.path.append('.')
+sys.path.append('./hidden_PIL/')
+
 from blenderbase import BlenderBase
 from mathutils import Matrix, Vector, Quaternion   # blender-specific classes
 
