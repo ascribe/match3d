@@ -27,6 +27,12 @@ class ImagesBuilder(BlenderBase):
         self.output_dir = abspath(args['output-directory'])
         self.target_dir = abspath(args['target-directory'])
         resolution = args.get('resolution')
+        self.all_rotations = args.get('all_rotations')
+        if self.all_rotations is None:
+            self.all_rotations = True
+        self.front_and_back = args.get('front_and_back')
+        if self.front_and_back is None:
+            self.front_and_back = True
         if not resolution:
             resolution = 1024
         super(ImagesBuilder, self).__init__(resolution)
@@ -45,9 +51,12 @@ class ImagesBuilder(BlenderBase):
     def run(self):
         with open(join(self.output_dir, 'image_match_generator_report.csv'), 'w') as report_file:
             for stl_name in self._get_filesnames_of_type(self.target_dir):
-                self.generate_images(stl_name, report_file=report_file)
+                self.generate_images(stl_name,
+                                     report_file=report_file,
+                                     rotations=self.all_rotations,
+                                     front_and_back=self.front_and_back)
 
-    def generate_images(self, stl_name, report_file=None):
+    def generate_images(self, stl_name, report_file=None, rotations=True, front_and_back=True):
         self._clear_scene()
         obj = self._load_stl(stl_name)
         self._center_object(obj)
@@ -87,6 +96,11 @@ class ImagesBuilder(BlenderBase):
                 self._render_scene(join(self.output_dir, path))
                 if report_file:
                     report_writer.writerow({'id': path, 'image_filename': abspath(join(self.output_dir, path)), 'stl_filename': stl_name})
+                if not front_and_back:
+                    if not rotations:
+                        break
+                    else:
+                        continue
                 self.scene.objects['Lamp'].location = 5 * Vector([-1, 0, 0])
                 self.scene.camera.location = 5 * Vector([-1, 0, 0])
                 path = '{}.{}.{}.back.png'.format(md5(stl_name.encode('utf-8')).hexdigest(), eig_vec_num, i)
@@ -94,6 +108,8 @@ class ImagesBuilder(BlenderBase):
                 if report_file:
                     report_writer.writerow({'id': path, 'image_filename': abspath(join(self.output_dir, path)), 'stl_filename': stl_name})
                 obj.data.transform(Matrix.Rotation(-radian, 4, [1, 0, 0]))
+                if not rotations:
+                    break
 
             # rotate back
             transform_matrix.invert()
@@ -140,6 +156,10 @@ parser.add_argument('target-directory', metavar='d', type=str, help='directory c
 parser.add_argument('output-directory', metavar='o', type=str, help='directory where to put images')
 
 parser.add_argument('--resolution', type=int, help='resolution of renderings (n x n)')
+parser.add_argument('--no-rotations', dest='all_rotations', help='do not generate rotations', action='store_false')
+parser.add_argument('--only-front-view', dest='front_and_back', help='only generate front views', action='store_false')
+parser.set_defaults(all_rotations=True)
+parser.set_defaults(front_and_back=True)
 
 # get the script args
 parsed_script_args, _ = parser.parse_known_args(script_args)
