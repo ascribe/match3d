@@ -3,7 +3,7 @@ __author__ = 'ryan'
 import tempfile
 import elasticsearch
 from image_match.signature_database import SignatureES
-from os import spawnvp, P_WAIT, listdir, rmdir
+from os import spawnvp, P_WAIT, listdir, rmdir, remove, walk
 from os.path import expanduser, abspath, join, splitext, dirname, basename
 
 
@@ -51,6 +51,28 @@ class ThreeDSearch():
 
         return uniques
 
+    @staticmethod
+    def _get_directories_of_type(directory, filetypes=['stl'], ignore_path=''):
+        w = walk(directory)
+        for t in w:
+            for filename in t[-1]:
+                if not filename.startswith('.')\
+                        and filename.rpartition('.')[-1] in filetypes\
+                        and abspath(join(t[0], filename)) != ignore_path:
+                    yield abspath(t[0])
+
     def run(self, stl_directory_name):
+        key = basename(dirname(stl_directory_name))
         images_path = self.generate_images(stl_directory_name)
-        return self.composite_score(res)
+        res = self.search_images(images_path)
+        for file_path in listdir(images_path):
+            remove(join(images_path, file_path))
+        rmdir(images_path)
+        return {key: self.composite_score(res)}
+
+    def run_all(self, stl_top_level_dir, ):
+        stl_paths = self._get_directories_of_type(stl_top_level_dir)
+        scores = {}
+        for stl_path in stl_paths:
+            scores.update(self.run(stl_path))
+        return scores
