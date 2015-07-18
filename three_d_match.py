@@ -59,11 +59,11 @@ class ThreeDSearch():
                 if not filename.startswith('.')\
                         and filename.rpartition('.')[-1] in filetypes\
                         and abspath(join(t[0], filename)) != ignore_path:
-                    yield abspath(t[0])
+                    yield abspath(join(t[0], filename))
 
     def run(self, stl_directory_name):
         key = basename(dirname(stl_directory_name))
-        images_path = self.generate_images(stl_directory_name)
+        images_path = self.generate_images(dirname(stl_directory_name))
         res = self.search_images(images_path)
         for file_path in listdir(images_path):
             remove(join(images_path, file_path))
