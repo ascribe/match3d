@@ -86,9 +86,9 @@ class ThreeDSearch():
         elif ranking == 'tournament':
             return {key: self.tournament_score(res)}
 
-    def run_all(self, stl_top_level_dir, ):
+    def run_all(self, stl_top_level_dir, ranking='dist'):
         stl_paths = self._get_directories_of_type(stl_top_level_dir)
         scores = {}
         for stl_path in stl_paths:
-            scores.update(self.run(stl_path))
+            scores.update(self.run(stl_path, ranking=ranking))
         return scores
