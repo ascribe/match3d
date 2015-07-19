@@ -51,6 +51,17 @@ class ThreeDSearch():
 
         return uniques
 
+    @classmethod
+    def tournament_score(self, results, max_matches=5):
+        composite_score = self.composite_score(results)
+        k = composite_score.keys()
+        v = composite_score.values()
+        winners = sorted(zip(k, v), key=lambda x: x[1])[:max_matches]
+        ranked_winners = {}
+        for i, winner in enumerate(winners):
+            ranked_winners.update({winner[0]: i})
+        return ranked_winners
+
     @staticmethod
     def _get_directories_of_type(directory, filetypes=['stl'], ignore_path=''):
         w = walk(directory)
@@ -61,7 +72,7 @@ class ThreeDSearch():
                         and abspath(join(t[0], filename)) != ignore_path:
                     yield abspath(join(t[0], filename))
 
-    def run(self, stl_directory_name, return_raw=False):
+    def run(self, stl_directory_name, return_raw=False, ranking='dist'):
         key = basename(dirname(stl_directory_name))
         images_path = self.generate_images(dirname(stl_directory_name))
         res = self.search_images(images_path)
@@ -70,8 +81,10 @@ class ThreeDSearch():
         rmdir(images_path)
         if return_raw:
             return res
-        else:
+        elif ranking == 'dist':
             return {key: self.composite_score(res)}
+        elif ranking == 'tournament':
+            return {key: self.tournament_score(res)}
 
     def run_all(self, stl_top_level_dir, ):
         stl_paths = self._get_directories_of_type(stl_top_level_dir)
