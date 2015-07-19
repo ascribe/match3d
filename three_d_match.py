@@ -61,14 +61,17 @@ class ThreeDSearch():
                         and abspath(join(t[0], filename)) != ignore_path:
                     yield abspath(join(t[0], filename))
 
-    def run(self, stl_directory_name):
+    def run(self, stl_directory_name, return_raw=False):
         key = basename(dirname(stl_directory_name))
         images_path = self.generate_images(dirname(stl_directory_name))
         res = self.search_images(images_path)
         for file_path in listdir(images_path):
             remove(join(images_path, file_path))
         rmdir(images_path)
-        return {key: self.composite_score(res)}
+        if return_raw:
+            return res
+        else:
+            return {key: self.composite_score(res)}
 
     def run_all(self, stl_top_level_dir, ):
         stl_paths = self._get_directories_of_type(stl_top_level_dir)
