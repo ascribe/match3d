@@ -1,16 +1,16 @@
 # About Image Match Generator
 
-Given a directory whose subdirectories contain STL files (3D models), Image Match Generator will generate a standard set of 24 images per STL file. The set is "standard" in the sense that if one were to model the same physical object with a different mesh (a different STL file), the 24 images generated for *it* would be roughly the same.
+Given a directory whose subdirectories contain STL files (3D models), Image Match Generator (`image_match_generator.py`) will generate a standard set of images per STL file. The images get stored in the specified output directory.
+
+The set of images is "standard" in the sense that if one were to model the same physical object with a different mesh (a different STL file), the images generated for *it* would be roughly the same.
 
 NOTE: Image Match Generator does *not* generate images of the reflected object (or reflected images of the object). You have to generate those afterwards (with other software). (You need the reflected versions because an object and its mirror image have the same shape.)
 
-The images get stored in the specified output directory.
-
-The number 24 comes from the fact that for each model, an image is generated for each of 3 eigenvectors x 2 directions per eigenvector x 4 viewing angles.
-
 To see usage:`$ blender -b -P image_match_generator.py -- -h`
 
-    usage: blender [-h] [--resolution RESOLUTION] d o
+    usage: blender [-h] [--resolution RESOLUTION] [--no-rotations]
+                   [--only-front-view]
+                   d o
 
     Generate oriented images for image matching
 
@@ -21,7 +21,9 @@ To see usage:`$ blender -b -P image_match_generator.py -- -h`
     optional arguments:
       -h, --help            show this help message and exit
       --resolution RESOLUTION
-                resolution of renderings (n x n)
+                            resolution of renderings (n x n)
+      --no-rotations        do not generate rotations
+      --only-front-view     only generate front views
 
 ## Generating Images
 Example usage:
