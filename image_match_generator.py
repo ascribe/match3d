@@ -86,10 +86,6 @@ class ImagesBuilder(BlenderBase):
         # reflection matrix
         # i.e. flip the sign of all y-coordinates
         # = reflection in the x-z plane
-        # refl_mat3 = Matrix([[1, 0, 0],
-        #                     [0, -1, 0],
-        #                     [0, 0, 1]])
-        # refl_matrix = refl_mat3.to_4x4()
         refl_matrix = Matrix([[1,  0, 0, 0],
                               [0, -1, 0, 0],
                               [0,  0, 1, 0],
