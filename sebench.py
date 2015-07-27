@@ -4,6 +4,7 @@ results.
 """
 
 import csv
+import numpy as np
 import networkx as nx
 from operator import itemgetter
 
@@ -87,6 +88,30 @@ class SEBenchmarker:
             err_str = 'The number of nodes in the digraph is different'
             err_str += ' from the number of items.'
             raise ValueError(err_str)
+
+    def report1(self, qname_list, search_results_list):
+        """Generates a report for a set of searches and their corresponding
+        search results. qname_list is a list of strings; qname_list[i] is
+        the name of the item searched-for on the ith search.
+        search_results_list[i] is the list of search results on the ith
+        search. (search_results_list is a list of lists.)
+        """
+        score_list = {}  # will be a dictionary of lists of scores
+        for i, qname in enumerate(qname_list):
+            score = self.every_score(qname, search_results_list[i])
+            for score_name, value in score.items():
+                if score_name not in score_list.keys():
+                    score_list[score_name] = [value]
+                else:
+                    score_list[score_name].append(value)
+        report = 'Summary Statistics\n'
+        for score_name, value_list in score_list.items():
+            val_array = np.array(value_list)
+            report += '{}\n'.format(score_name)
+            report += "  Number of values summarized = {}\n".format(len(val_array))
+            report += "  Median  = {}\n".format(np.median(val_array))
+            report += "  Average = {}\n".format(np.average(val_array))
+        return report
 
     def every_score(self, qname, search_results):
         """Returns a dictionary of all scores for the given query item

@@ -16,7 +16,8 @@ csv1 = './***REMOVED***_data/golden_se_results.csv'
 csv2 = './***REMOVED***_data/approved_names.csv'
 bmt = SEBenchmarker(csv1, csv2)
 
-score_dict = {}  # will be a dictionary of lists
+qname_list = []
+search_results_list = []
 
 for row_idx in range(1, sr_arr.shape[0]):
     qname = sr_arr[row_idx, 0]
@@ -35,16 +36,8 @@ for row_idx in range(1, sr_arr.shape[0]):
         print "the first search result is not {}".format(qname)
         print "In fact, search_results = {}".format(search_results)
 
-    for key, value in se_score.items():
-        if key not in score_dict:
-            score_dict[key] = [value]
-        else:
-            score_dict[key].append(value)
+    qname_list.append(qname)
+    search_results_list.append(search_results)
 
-print "\nSummary Statistics\n"
-for key, value in score_dict.items():
-    val_array = np.array(value)
-    print "{}".format(key)
-    print "  Number of values summarized = {}".format(len(val_array))
-    print "  Median  = {}".format(np.median(val_array))
-    print "  Average = {}".format(np.average(val_array))
+report1 = bmt.report1(qname_list, search_results_list)
+print report1
