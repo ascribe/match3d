@@ -41,3 +41,7 @@ for row_idx in range(1, sr_arr.shape[0]):
 
 report1 = bmt.report1(qname_list, search_results_list)
 print report1
+
+bmt.report2(qname_list, search_results_list,
+            '/home/troy/Documents/ascribe/***REMOVED***/product_images',
+            'test.html')

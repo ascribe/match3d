@@ -7,6 +7,7 @@ import csv
 import numpy as np
 import networkx as nx
 from operator import itemgetter
+from os.path import join, abspath
 
 
 class SEBenchmarker:
@@ -112,6 +113,33 @@ class SEBenchmarker:
             report += "  Median  = {}\n".format(np.median(val_array))
             report += "  Average = {}\n".format(np.average(val_array))
         return report
+
+    def report2(self, qname_list, search_results_list, img_path, html_fname):
+        """Writes an HTML file named html_fname containing a visual presentation
+        of the searches (qname_list) and their results (search_results_list).
+        img_path is the full path to the directory containing item images,
+        which are assumed to have file names of the form itemname.png
+        """
+        with open(html_fname, 'w') as f:
+            f.write("<!DOCTYPE html>\n<html>\n<head>\n")
+            f.write("<title>Search Report</title>\n</head>\n<body>\n")
+            for i, qname in enumerate(qname_list):
+                f.write("<h1>Search {}</h1>\n".format(i))
+                f.write("<p>Searched for:</p>\n")
+                path1 = abspath(join(img_path, qname + '.png'))
+                f.write('<img src="file://{}">'.format(path1))
+                f.write("<p>Results:</p>\n")
+                for item_name in search_results_list[i]:
+                    path2 = abspath(join(img_path, item_name + '.png'))
+                    f.write('<img src="file://{}">'.format(path2))
+                f.write("\n")
+                f.write('<p>Items a human said are <em>definitely similar</em> (if any):</p>\n')
+                for item_name in self.definitely_similar[qname]:
+                    path2 = abspath(join(img_path, item_name + '.png'))
+                    f.write('<img src="file://{}">'.format(path2))
+                f.write("\n")
+                f.write("</body>\n</html>\n")
+        return True
 
     def every_score(self, qname, search_results):
         """Returns a dictionary of all scores for the given query item
