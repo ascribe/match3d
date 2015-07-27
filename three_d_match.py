@@ -31,8 +31,7 @@ class ThreeDSearch():
         img_paths = [join(_images_directory, x) for x in listdir(_images_directory) if splitext(x)[-1] == '.png']
         res = []
         for img_path in img_paths:
-            s = self.ses.parallel_find(img_path, n_parallel_words=self.ses.N)
-            res.append(s.next())
+            res.append(self.ses.similarity_search(img_path, n_parallel_words=10, word_limit=60))
         return res
 
     @staticmethod
