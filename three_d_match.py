@@ -8,7 +8,7 @@ from os.path import expanduser, abspath, join, splitext, dirname, basename
 
 
 class ThreeDSearch():
-    def __init__(self, es_nodes=['localhost'], index_name='***REMOVED***_tester', cutoff=1.0):
+    def __init__(self, es_nodes=['localhost'], index_name='***REMOVED***_tester', cutoff=0.5):
         self.es = elasticsearch.Elasticsearch(es_nodes)
         self.ses = SignatureES(self.es, index=index_name)
         self.ses.distance_cutoff = cutoff
@@ -31,7 +31,7 @@ class ThreeDSearch():
         img_paths = [join(_images_directory, x) for x in listdir(_images_directory) if splitext(x)[-1] == '.png']
         res = []
         for img_path in img_paths:
-            res.append(self.ses.similarity_search(img_path, n_parallel_words=10, word_limit=60))
+            res.append(self.ses.similarity_search(img_path, n_parallel_words=5, word_limit=60))
         return res
 
     @staticmethod
@@ -62,6 +62,21 @@ class ThreeDSearch():
         return ranked_winners
 
     @staticmethod
+    def best_single_image(results, n_per_view=5):
+        scores = {}
+        for result in results:
+            for i in range(n_per_view):
+                if result:
+                    best = min(result, key=lambda x: x['dist'])
+                    k = basename(dirname(best['path']))
+                    if k not in scores:
+                        scores[k] = best['dist']
+                    elif best['dist'] < scores[k]:
+                        scores[k] = best['dist']
+                    result.remove(best)
+        return scores
+
+    @staticmethod
     def _get_directories_of_type(directory, filetypes=['stl'], ignore_path=''):
         w = walk(directory)
         for t in w:
@@ -84,8 +99,10 @@ class ThreeDSearch():
             return {key: self.composite_score(res)}
         elif ranking == 'tournament':
             return {key: self.tournament_score(res)}
+        elif ranking == 'single':
+            return {key: self.best_single_image(res)}
 
-    def run_all(self, stl_top_level_dir, ranking='dist'):
+    def run_all(self, stl_top_level_dir, ranking='single'):
         stl_paths = self._get_directories_of_type(stl_top_level_dir)
         scores = {}
         for stl_path in stl_paths:
