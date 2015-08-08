@@ -134,9 +134,20 @@ class SEBenchmarker:
                     f.write('<img src="file://{}">'.format(path2))
                 f.write("\n")
                 f.write('<p>Items a human said are <em>definitely similar</em> (if any):</p>\n')
-                for item_name in self.definitely_similar[qname]:
-                    path2 = abspath(join(img_path, item_name + '.png'))
-                    f.write('<img src="file://{}">'.format(path2))
+                if len(self.definitely_similar[qname]) == 0:
+                    f.write('<p>None.</p>\n')
+                else:
+                    for item_name in self.definitely_similar[qname]:
+                        path2 = abspath(join(img_path, item_name + '.png'))
+                        f.write('<img src="file://{}">'.format(path2))
+                f.write("\n")
+                f.write('<p>Items a human said are <em>maybe similar</em> (if any):</p>\n')
+                if len(self.maybe_similar[qname]) == 0:
+                    f.write('<p>None.</p>\n')
+                else:
+                    for item_name in self.maybe_similar[qname]:
+                        path2 = abspath(join(img_path, item_name + '.png'))
+                        f.write('<img src="file://{}">'.format(path2))
                 f.write("\n")
                 f.write("</body>\n</html>\n")
         return True
