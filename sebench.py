@@ -236,26 +236,29 @@ class SEBenchmarker:
         """
         self.check_item_names(qname, search_results)
 
-        # list_to_sort[i] = the minimum distance from qname to
-        #                   search_results[i]
         nr = len(search_results)
-        list_to_sort = [None] * nr
-        for idx, item_name in enumerate(search_results):
-            try:
-                list_to_sort[idx] = nx.dijkstra_path_length(self.DG, qname,
-                                                            item_name,
-                                                            weight='weight')
-            except nx.NetworkXNoPath:
-                # No path exists betwen qname and item_name
-                list_to_sort[idx] = 10000000  # just some big number
+        if nr == 1:
+            return 0.0
+        else:
+            # list_to_sort[i] = the minimum distance from qname to
+            #                   search_results[i] in the digraph self.DG
+            list_to_sort = [None] * nr
+            for idx, item_name in enumerate(search_results):
+                try:
+                    list_to_sort[idx] = nx.dijkstra_path_length(self.DG, qname,
+                                                                item_name,
+                                                                weight='weight')
+                except nx.NetworkXNoPath:
+                    # No path exists betwen qname and item_name
+                    list_to_sort[idx] = 10000000  # just some big number
 
-        # Count the number of inversions in list_to_sort
-        _, inv_count = SEBenchmarker._sort_and_count(list_to_sort)
+            # Count the number of inversions in list_to_sort
+            _, inv_count = SEBenchmarker._sort_and_count(list_to_sort)
 
-        # Calculate the max number of inversions possible
-        inv_max = (nr * (nr-1)) / 2
+            # Calculate the max number of inversions possible
+            inv_max = (nr * (nr-1)) / 2
 
-        return float(inv_count) / float(inv_max)
+            return float(inv_count) / float(inv_max)
 
     def first_result_score(self, qname, search_results):
         """This score is 1.0 if the first search result is qname,
