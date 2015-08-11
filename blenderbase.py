@@ -22,6 +22,9 @@ class BlenderBase():
         self.scene.render.resolution_x = 2 * resolution
         self.scene.render.resolution_y = 2 * resolution
 
+        # turning off raytracing can greatly speed up the non-parallel parts of rendering
+        self.scene.render.use_raytrace = False
+
     def _set_tracking(self, obj):
         cns = self.scene.camera.constraints.new('TRACK_TO')
         cns.target = obj
