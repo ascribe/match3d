@@ -11,6 +11,7 @@ from blenderbase import BlenderBase
 from mathutils import Matrix, Vector    # blender-specific classes
 
 from functools import reduce
+from itertools import product
 from operator import add
 from os import mkdir, walk
 from hashlib import md5
@@ -33,6 +34,7 @@ class ImagesBuilder(BlenderBase):
         self.front_and_back = args.get('front_and_back')
         if self.front_and_back is None:
             self.front_and_back = True
+        self.octahedral = args.get('octahedral')
         if not resolution:
             resolution = 1024
         super(ImagesBuilder, self).__init__(resolution)
@@ -56,7 +58,7 @@ class ImagesBuilder(BlenderBase):
                                      rotations=self.all_rotations,
                                      front_and_back=self.front_and_back)
 
-    def generate_images(self, stl_name, report_file=None, rotations=True, front_and_back=True):
+    def generate_images(self, stl_name, report_file=None, rotations=True, front_and_back=True, octahedral=False):
         self._clear_scene()
         obj = self._load_stl(stl_name)
         self._center_object(obj)
@@ -115,6 +117,28 @@ class ImagesBuilder(BlenderBase):
             transform_matrix.invert()
             obj.data.transform(transform_matrix)
 
+        if self.octahedral:
+            octahedral_directions = self._octahedral_directions(evecs)
+            for i, axis in enumerate(octahedral_directions):
+                self.scene.objects['Lamp'].location = 5 * axis
+                self.scene.camera.location = 5 * axis
+                # render for each eigenvector and include every 120 deg rotation
+                for j, radian in enumerate(2 * np.pi * np.arange(3) / 3.0):
+                    obj.data.transform(Matrix.Rotation(radian, 4, axis))
+                    path = '{}.{}.{}.oct.png'.format(md5(stl_name.encode('utf-8')).hexdigest(), i, j)
+                    self._render_scene(join(self.output_dir, path))
+                    if report_file:
+                        report_writer.writerow({'id': path, 'image_filename': abspath(join(self.output_dir, path)), 'stl_filename': stl_name})
+                    obj.data.transform(Matrix.Rotation(-radian, 4, axis))
+
+    @staticmethod
+    def _octahedral_directions(evecs):
+        s = product(*zip(evecs, -evecs))  # lol unreadable python magic
+        t = list(s)
+        unnormalized = np.array(list(map(sum, t)))
+        f = 1. / np.linalg.norm(unnormalized, axis=1)
+        return np.diag(f).dot(unnormalized)
+
     @staticmethod
     def _get_filesnames_of_type(directory, filetypes=['stl'], ignore_path=''):
         w = walk(directory)
@@ -158,8 +182,10 @@ parser.add_argument('output-directory', metavar='o', type=str, help='directory w
 parser.add_argument('--resolution', type=int, help='resolution of renderings (n x n)')
 parser.add_argument('--no-rotations', dest='all_rotations', help='do not generate rotations', action='store_false')
 parser.add_argument('--only-front-view', dest='front_and_back', help='only generate front views', action='store_false')
+parser.add_argument('--octahedral-views', dest='octahedral', help='more views', action='store_true')
 parser.set_defaults(all_rotations=True)
 parser.set_defaults(front_and_back=True)
+parser.set_defaults(octahedral=False)
 
 # get the script args
 parsed_script_args, _ = parser.parse_known_args(script_args)
