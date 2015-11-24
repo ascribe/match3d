@@ -9,7 +9,7 @@ from operator import add
 HASH_FUNCTIONS = ['dct', 'mexican_hat', 'goldberg']
 # HASH_FUNCTIONS = ['dct', 'radial', 'mexican_hat', 'goldberg']
 
-class ImageHasher:
+class ImageHasher(object):
     def __init__(self, hash_functions=HASH_FUNCTIONS):
         self.hash_functions = hash_functions
         self.dct = 'dct' in hash_functions
@@ -45,8 +45,12 @@ class ImageHasher:
 
 
 class Benchmarker(ImageHasher):
+    def __init__(self, results_csv='hashes.csv', hash_functions=HASH_FUNCTIONS):
+        super(Benchmarker, self).__init__(hash_functions=hash_functions)
+        self.data = self.load_data(results_csv=results_csv)
+
     def load_data(self, results_csv='hashes.csv'):
-        self.data = pd.read_csv(results_csv, header=None, names=['image_name',
+        return pd.read_csv(results_csv, header=None, names=['image_name',
                                                     'image_full_path',
                                                     'stl_full_path']
                                                    + self.hash_functions)
