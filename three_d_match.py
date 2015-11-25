@@ -14,17 +14,18 @@ class ThreeDSearch():
         self.ses.distance_cutoff = cutoff
 
     @staticmethod
-    def generate_images(stl_directory_name):
+    def generate_images(stl_directory_name, blender_args=None):
         output_directory = tempfile.mkdtemp()
 
-        args = ['blender',
-                '-b', '-P', 'image_match_generator.py', '--',
-                '-d', abspath(expanduser(stl_directory_name)),
-                '-o', output_directory,
-                '--no-rotations',
-                '--only-front-view']
+        if not blender_args:
+            blender_args = ['blender',
+                    '-b', '-P', 'image_match_generator.py', '--',
+                    '-d', abspath(expanduser(stl_directory_name)),
+                    '-o', output_directory,
+                    '--no-rotations',
+                    '--only-front-view']
 
-        spawnvp(P_WAIT, 'blender', args)
+        spawnvp(P_WAIT, 'blender', blender_args)
         return output_directory
 
     def search_images(self, _images_directory):
