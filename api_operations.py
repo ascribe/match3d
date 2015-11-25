@@ -2,9 +2,11 @@ from three_d_match import ThreeDSearch
 from shutil import copy
 from elasticsearch.helpers import bulk
 from os.path import join, abspath, expanduser
-from os import listdir
+from os import listdir, rmdir
 from image_match.signature_database import make_record
 import tempfile
+from shutil import rmtree
+
 #from generate_images_for_humans import ImagesBuilder
 
 class APIOperations(ThreeDSearch):
@@ -41,9 +43,15 @@ class APIOperations(ThreeDSearch):
                 })
 
         _, errs = bulk(self.es, to_insert)
+        rmtree(input_directory)
+        rmtree(output_directory)
 
-    def search(self, _id=None, stl_file=None):
-        pass
+    def search(self, stl_id=None, stl_file=None, ranking='single'):
+        input_directory = tempfile.mkdtemp()
+        copy(stl_file, input_directory)
+        res = self.run(input_directory, ranking=ranking)
+        rmtree(input_directory)
+        return res
 
     def render(self, _id=None, stl_file=None):
         pass
