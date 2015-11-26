@@ -46,6 +46,22 @@ class APIOperations(ThreeDSearch):
         rmtree(input_directory)
         rmtree(output_directory)
 
+    def search(self, stl_file=None, return_raw=False, ranking='single'):
+        # TODO: include origin field
+        input_directory = tempfile.mkdtemp()
+        copy(stl_file, input_directory)
+        images_directory = self.generate_images(input_directory)
+        res = self.search_images(images_directory)
+        rmtree(input_directory)
+        rmtree(images_directory)
+        if return_raw:
+            return res
+        elif ranking == 'single':
+            return {stl_file: self.best_single_image(res)}
+
+    def render(self, _id=None, stl_file=None):
+        pass
+
     def best_single_image(self, results, n_per_view=5):
         scores = {}
         for result in results:
@@ -60,23 +76,3 @@ class APIOperations(ThreeDSearch):
                         scores[k] = best['dist']
                     result.remove(best)
         return scores
-
-    def search(self, stl_id=None, stl_file=None, return_raw=False, ranking='single'):
-        # TODO: include origin field
-        input_directory = tempfile.mkdtemp()
-        copy(stl_file, input_directory)
-        images_directory = self.generate_images(input_directory)
-        res = self.search_images(images_directory)
-        rmtree(input_directory)
-        rmtree(images_directory)
-        if return_raw:
-            return res
-        elif ranking == 'dist':
-            return {stl_file: self.composite_score(res)}
-        elif ranking == 'tournament':
-            return {stl_file: self.tournament_score(res)}
-        elif ranking == 'single':
-            return {stl_file: self.best_single_image(res)}
-
-    def render(self, _id=None, stl_file=None):
-        pass
