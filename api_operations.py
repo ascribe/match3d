@@ -11,7 +11,7 @@ from shutil import rmtree
 
 class APIOperations(ThreeDSearch):
 
-    def add(self, stl_id, stl_file, origin=None, doc_type='stl_image'):
+    def add(self, stl_id, stl_file, origin=None, doc_type='image'):
         input_directory = tempfile.mkdtemp()
         output_directory = tempfile.mkdtemp()
         copy(stl_file, input_directory)
@@ -46,12 +46,37 @@ class APIOperations(ThreeDSearch):
         rmtree(input_directory)
         rmtree(output_directory)
 
-    def search(self, stl_id=None, stl_file=None, ranking='single'):
+    def best_single_image(self, results, n_per_view=5):
+        scores = {}
+        for result in results:
+            for i in range(n_per_view):
+                if result:
+                    best = min(result, key=lambda x: x['dist'])
+                    k = self.es.get(id=best['id'], index=self.ses.index, doc_type='image',
+                                         fields=['stl_id'])['fields']['stl_id'][0]
+                    if k not in scores:
+                        scores[k] = best['dist']
+                    elif best['dist'] < scores[k]:
+                        scores[k] = best['dist']
+                    result.remove(best)
+        return scores
+
+    def search(self, stl_id=None, stl_file=None, return_raw=False, ranking='single'):
+        # TODO: include origin field
         input_directory = tempfile.mkdtemp()
         copy(stl_file, input_directory)
-        res = self.run(input_directory, ranking=ranking)
+        images_directory = self.generate_images(input_directory)
+        res = self.search_images(images_directory)
         rmtree(input_directory)
-        return res
+        rmtree(images_directory)
+        if return_raw:
+            return res
+        elif ranking == 'dist':
+            return {stl_file: self.composite_score(res)}
+        elif ranking == 'tournament':
+            return {stl_file: self.tournament_score(res)}
+        elif ranking == 'single':
+            return {stl_file: self.best_single_image(res)}
 
     def render(self, _id=None, stl_file=None):
         pass
