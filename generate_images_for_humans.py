@@ -24,6 +24,7 @@ class ImagesBuilder(BlenderBase):
     def __init__(self, args):
         self.target_dir = abspath(args['target-directory'])
         self.output_dir = abspath(args['output-directory'])
+        self.custom_name = args.get('custom_name')
         # Set subimage resolution = the width of the smaller squares
         # in the 3x3 grid. The width of the final image will be
         # three times the subimage resolution.
@@ -98,8 +99,11 @@ class ImagesBuilder(BlenderBase):
                 z = z - dz
                 lon = lon + dlon
 
-        # Get the name of the parent directory = object ID
-        parent_dir_name = stl_name.rsplit(sep, 2)[1]
+        if self.custom_name is None:
+            # Get the name of the parent directory = object ID
+            parent_dir_name = stl_name.rsplit(sep, 2)[1]
+        else:
+            parent_dir_name = self.custom_name
 
         # Add a text label to the image
         draw = ImageDraw.Draw(final_img)
@@ -141,6 +145,8 @@ parser.add_argument('target-directory', metavar='d',
 parser.add_argument('output-directory', metavar='o',
                     type=str,
                     help='directory where images will be written')
+parser.add_argument('--custom-name', type=str, help='override default name')
+
 
 # get the script args and run
 parsed_script_args, _ = parser.parse_known_args(script_args)
