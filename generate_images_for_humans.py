@@ -10,6 +10,7 @@ from blenderbase import BlenderBase
 
 from os import walk, remove, mkdir
 from os.path import join, abspath, sep
+from shutil import rmtree
 
 # Note: Be sure to use a version of PIL that works with Python 3
 # (which is the version of Python that Blender uses)
@@ -17,6 +18,7 @@ from PIL import Image, ImageFont, ImageDraw
 
 from math import cos, sin, sqrt, floor
 import argparse
+import tempfile
 
 
 class ImagesBuilder(BlenderBase):
@@ -79,7 +81,8 @@ class ImagesBuilder(BlenderBase):
                 self.scene.objects['Lamp'].location = camera_pos
 
                 # Render the view to a temp file
-                temp_path = './temp.png'
+                temp_dir = tempfile.mkdtemp()
+                temp_path = join(temp_dir, 'temp.png')
                 self._render_scene(temp_path)
 
                 # Open the just-written temp image file using PIL
@@ -93,7 +96,7 @@ class ImagesBuilder(BlenderBase):
                 final_img.paste(temp_img, (paste_x, paste_y))
 
                 # Delete the temp image file
-                remove(temp_path)
+                rmtree(temp_dir)
 
                 # Update variables used to calculate the camera position
                 z = z - dz
