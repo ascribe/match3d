@@ -2,7 +2,7 @@ from three_d_match import ThreeDSearch
 from shutil import copy
 from elasticsearch.helpers import bulk
 from os.path import join, abspath, expanduser
-from os import listdir, rmdir
+from os import listdir, spawnvp, P_WAIT
 from image_match.signature_database import make_record
 import tempfile
 from shutil import rmtree
@@ -59,8 +59,19 @@ class APIOperations(ThreeDSearch):
         elif ranking == 'single':
             return {stl_file: self.best_single_image(res)}
 
-    def render(self, _id=None, stl_file=None):
-        pass
+    def render(self, stl_id, stl_file):
+        input_directory = tempfile.mkdtemp()
+        output_dir = tempfile.mkdtemp()
+        copy(stl_file, input_directory)
+        blender_args = ['blender',
+                '-b', '-P', 'generate_images_for_humans.py', '--',
+                '-d', input_directory,
+                '-o', output_dir,
+                '--custom-name', stl_id
+                ]
+        spawnvp(P_WAIT, 'blender', blender_args)
+        rmtree(input_directory)
+        return output_dir
 
     def best_single_image(self, results, n_per_view=5):
         scores = {}
