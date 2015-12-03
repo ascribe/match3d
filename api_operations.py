@@ -2,47 +2,75 @@ from three_d_match import ThreeDSearch
 from shutil import copy
 from elasticsearch.helpers import bulk, BulkIndexError
 from os.path import join, abspath, expanduser
-from os import listdir, spawnvp, P_WAIT
+from os import listdir, spawnvp, P_WAIT, getenv, remove
 from image_match.signature_database import make_record
 import tempfile
 from shutil import rmtree
 from ascribe import AscribeWrapper
-
-# Ascribe credentials
-BEARER_TOKEN = '1b26f1ab053facda3bd4263c4d102d1404d3a008'
+from boto.s3.connection import S3Connection
+import requests
+import gnupg
 
 
 class APIOperations(ThreeDSearch):
     def __init__(self, es_nodes=['localhost'],
                  index_name='***REMOVED***_tester',
                  artist_name='***REMOVED***',
-                 cutoff=0.5):
+                 cutoff=0.5,
+                 pgp_fingerprint=None,
+                 bucket_name='***REMOVED***'):
         super(APIOperations, self).__init__(es_nodes=es_nodes,
                                             index_name=index_name,
                                             cutoff=cutoff)
 
-        self.ascribe_wrapper = AscribeWrapper(BEARER_TOKEN)
+        self.ascribe_wrapper = AscribeWrapper()
         self.artist_name = artist_name
 
-    def add(self, stl_id, stl_file, origin=None, doc_type='image'):
+        if pgp_fingerprint:
+            self.pgp_fingerprint = pgp_fingerprint
+        else:
+            self.pgp_fingerprint = getenv('STILNEST_PGP_FINGERPRINT')
+
+        self.gpg = gnupg.GPG()
+
+        self.conn = S3Connection(host='s3.amazonaws.com')
+        self.bucket = [x for x in self.conn.get_all_buckets() if x.name == bucket_name][0]
+
+    def add(self, stl_id, stl_url=None, stl_file=None, origin=None, doc_type='image'):
         input_directory = tempfile.mkdtemp()
         output_directory = tempfile.mkdtemp()
+        temporary_stl = tempfile.mkstemp(suffix='.stl')[-1]
         try:
+            # if a url is supplied, attempt to download the STL
+            if stl_url:
+                r = requests.get(stl_url)
+                with open(temporary_stl, 'wb') as f:
+                    f.write(r.content)
+                stl_file = temporary_stl
+
+            # copy the supplied stl file or requested data to a temp dir
             copy(stl_file, input_directory)
 
+            # set up and run the rendering process. fork and wait for completion
             blender_args = ['blender',
                             '-b', '-P', 'image_match_generator.py', '--',
                             '-d', abspath(expanduser(input_directory)),
                             '-o', output_directory,
                             ]
+
             self.generate_images(input_directory, blender_args=blender_args)
+
+            # encrypt the file, if possible
+            with open(temporary_stl, 'rb') as f:
+                encrypted_ascii_data = self.gpg.encrypt_file(f, self.pgp_fingerprint)
+
+            # upload encrypted file to S3
 
             to_insert = []
 
             # ascribe the file
             piece = {
-                # file upload not implemented yet...coming soon?
-                'file': self._encrypt(stl_file),
+                'file_url': self._encrypt(stl_file),
                 'artist_name': self.artist_name,
                 'title': stl_id
             }
@@ -75,15 +103,18 @@ class APIOperations(ThreeDSearch):
         finally:
             rmtree(input_directory)
             rmtree(output_directory)
+            remove(temporary_stl)
 
         return ascribe_response
 
-    def _encrypt(self, stl_file):
-        return stl_file
+    def _encrypt(self, stl_file_path):
+        # with open(stl_file_path, 'rb') as f:
+        #     self.
+        pass
 
     def _decrypt(self, encrypted_stl_file):
         return encrypted_stl_file
-    
+
     def search(self, stl_file=None, return_raw=False, ranking='single'):
         # TODO: include origin field
         input_directory = tempfile.mkdtemp()

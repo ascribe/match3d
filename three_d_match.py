@@ -7,7 +7,7 @@ from os import spawnvp, P_WAIT, listdir, rmdir, remove, walk
 from os.path import expanduser, abspath, join, splitext, dirname, basename
 
 
-class ThreeDSearch():
+class ThreeDSearch(object):
     def __init__(self, es_nodes=['localhost'], index_name='***REMOVED***_tester', cutoff=0.5):
         self.es = elasticsearch.Elasticsearch(es_nodes)
         self.ses = SignatureES(self.es, index=index_name)
