@@ -8,6 +8,7 @@ import tempfile
 from shutil import rmtree
 from ascribe import AscribeWrapper
 from boto.s3.connection import S3Connection
+from boto.s3.key import Key
 import requests
 import gnupg
 
@@ -33,13 +34,17 @@ class APIOperations(ThreeDSearch):
 
         self.gpg = gnupg.GPG()
 
-        self.conn = S3Connection(host='s3.amazonaws.com')
+        self.conn = S3Connection(host='s3.eu-central-1.amazonaws.com')
+
+        # the 'get_bucket' by name function doesn't work in eu-central-1, this is a workaround
         self.bucket = [x for x in self.conn.get_all_buckets() if x.name == bucket_name][0]
 
     def add(self, stl_id, stl_url=None, stl_file=None, origin=None, doc_type='image'):
         input_directory = tempfile.mkdtemp()
         output_directory = tempfile.mkdtemp()
         temporary_stl = tempfile.mkstemp(suffix='.stl')[-1]
+
+        # TODO: many of these functions should be parallelized
         try:
             # if a url is supplied, attempt to download the STL
             if stl_url:
@@ -50,6 +55,7 @@ class APIOperations(ThreeDSearch):
 
             # copy the supplied stl file or requested data to a temp dir
             copy(stl_file, input_directory)
+            path = join(input_directory, stl_file)
 
             # set up and run the rendering process. fork and wait for completion
             blender_args = ['blender',
@@ -61,21 +67,26 @@ class APIOperations(ThreeDSearch):
             self.generate_images(input_directory, blender_args=blender_args)
 
             # encrypt the file, if possible
-            with open(temporary_stl, 'rb') as f:
+            with open(path, 'rb') as f:
                 encrypted_ascii_data = self.gpg.encrypt_file(f, self.pgp_fingerprint)
 
             # upload encrypted file to S3
+            k = Key(self.bucket)
+            k.key = stl_id
+            k.set_contents_from_string(encrypted_ascii_data.data)
+            k.set_acl('public-read')
+            url = k.generate_url(1000)
 
             to_insert = []
 
             # ascribe the file
             piece = {
-                'file_url': self._encrypt(stl_file),
+                'file_url': url,
                 'artist_name': self.artist_name,
                 'title': stl_id
             }
 
-            ascribe_response = self.ascribe_wrapper(piece)
+            ascribe_response = self.ascribe_wrapper.create_piece(piece)
 
             for image_path in listdir(output_directory):
                 if image_path.split('.')[-1] != 'csv':
