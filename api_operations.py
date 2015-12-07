@@ -40,6 +40,7 @@ class APIOperations(ThreeDSearch):
         self.bucket = [x for x in self.conn.get_all_buckets() if x.name == bucket_name][0]
 
     def add(self, stl_id, stl_url=None, stl_file=None, origin=None, doc_type='image'):
+        # set up temporary directories
         input_directory = tempfile.mkdtemp()
         output_directory = tempfile.mkdtemp()
         temporary_stl = tempfile.mkstemp(suffix='.stl')[-1]
@@ -89,6 +90,7 @@ class APIOperations(ThreeDSearch):
 
             ascribe_response = self.ascribe_wrapper.create_piece(piece)
 
+            # add image signatures to elasticsearch
             for image_path in listdir(output_directory):
                 if image_path.split('.')[-1] != 'csv':
                     rec = make_record(join(output_directory, image_path),
@@ -96,6 +98,7 @@ class APIOperations(ThreeDSearch):
                                       self.ses.k,
                                       self.ses.N)
 
+                    # include some ascribe metadata
                     rec['ascribe_hash'] = ascribe_response['piece']['digital_work']['hash']
                     rec['ascribe_id'] = ascribe_response['piece']['digital_work']['id']
                     rec['ascribe_url'] = ascribe_response['piece']['digital_work']['url_safe']
@@ -113,6 +116,7 @@ class APIOperations(ThreeDSearch):
             _, errs = bulk(self.es, to_insert)
 
         finally:
+            # clean up temporary locations
             rmtree(input_directory)
             rmtree(output_directory)
             remove(temporary_stl)
