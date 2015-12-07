@@ -75,8 +75,9 @@ class APIOperations(ThreeDSearch):
             k.key = stl_id
             k.set_contents_from_string(encrypted_ascii_data.data)
             k.set_acl('public-read')
-            url = k.generate_url(1000)
-
+            url = 'https://{host}/{bucket}/{key}'.format(host=self.conn.server_name(),
+                                                         bucket=self.bucket.name,
+                                                         key=k.name)
             to_insert = []
 
             # ascribe the file
@@ -117,14 +118,6 @@ class APIOperations(ThreeDSearch):
             remove(temporary_stl)
 
         return ascribe_response
-
-    def _encrypt(self, stl_file_path):
-        # with open(stl_file_path, 'rb') as f:
-        #     self.
-        pass
-
-    def _decrypt(self, encrypted_stl_file):
-        return encrypted_stl_file
 
     def search(self, stl_file=None, return_raw=False, ranking='single'):
         # TODO: include origin field
