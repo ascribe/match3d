@@ -1,6 +1,7 @@
 from three_d_match import ThreeDSearch
 from shutil import copy
-from elasticsearch.helpers import bulk, BulkIndexError
+from elasticsearch.helpers import bulk
+from elasticsearch.exceptions import NotFoundError
 from os.path import join, abspath, expanduser
 from os import listdir, spawnvp, P_WAIT, getenv, remove
 from image_match.signature_database import make_record
@@ -48,8 +49,12 @@ class APIOperations(ThreeDSearch):
 
     def add(self, stl_id, stl_url=None, stl_file=None, origin=None, doc_type='image'):
         # check if stl_id exists, and add nothing if it does
-        if self._ascribe_id_from_***REMOVED***_id(stl_id):
-            return None
+        try:
+            if self._ascribe_id_from_***REMOVED***_id(stl_id):
+                return None
+        except NotFoundError:
+            # No index setup yet, so no duplicates possible!
+            pass
 
         # set up temporary directories
         input_directory = tempfile.mkdtemp()
@@ -111,9 +116,9 @@ class APIOperations(ThreeDSearch):
                                       self.ses.N)
 
                     # include some ascribe metadata
-                    rec['ascribe_hash'] = ascribe_response['piece']['digital_work']['hash']
-                    rec['ascribe_id'] = ascribe_response['piece']['digital_work']['id']
-                    rec['ascribe_url'] = ascribe_response['piece']['digital_work']['url_safe']
+                    rec['ascribe_bitcoin_id'] = ascribe_response['piece']['bitcoin_id']
+                    rec['ascribe_id'] = ascribe_response['piece']['id']
+                    rec['ascribe_url'] = ascribe_response['piece']['digital_work']['url']
 
                     rec['stl_id'] = stl_id
                     if origin:
@@ -145,7 +150,10 @@ class APIOperations(ThreeDSearch):
             return None
 
     def _download_and_decrypt(self, stl_id):
-        pass
+        _id = self._ascribe_id_from_***REMOVED***_id(stl_id)
+        res = self.ascribe_wrapper.retrieve_piece(_id)
+        content = requests.get(res['piece']['digital_work']['url'])
+        return self.gpg.decrypt(content.content).data
 
     def search(self, stl_file=None, return_raw=False, ranking='single'):
         # TODO: include origin field
@@ -161,12 +169,18 @@ class APIOperations(ThreeDSearch):
             return {stl_file: self.best_single_image(res)}
 
     def render(self, stl_file=None, stl_id=None):
-        input_directory = tempfile.mkdtemp()
-        output_dir = tempfile.mkdtemp()
-        if stl_id:
-            pass
-        else:
+        try:
+            input_directory = tempfile.mkdtemp()
+            output_dir = tempfile.mkdtemp()
+
+            temporary_stl = tempfile.mkstemp(suffix='.stl')[-1]
+            if stl_id:
+                with open(temporary_stl, 'wb') as f:
+                    f.write(self._download_and_decrypt(stl_id))
+                    stl_file = temporary_stl
+
             copy(stl_file, input_directory)
+
             blender_args = ['blender',
                     '-b', '-P', 'generate_images_for_humans.py', '--',
                     '-d', input_directory,
@@ -174,7 +188,11 @@ class APIOperations(ThreeDSearch):
                     '--custom-name', stl_id
                     ]
             spawnvp(P_WAIT, 'blender', blender_args)
-        rmtree(input_directory)
+
+        finally:
+            rmtree(input_directory)
+            remove(temporary_stl)
+
         return output_dir
 
     def best_single_image(self, results, n_per_view=5):
