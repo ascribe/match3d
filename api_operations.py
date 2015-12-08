@@ -141,15 +141,18 @@ class APIOperations(ThreeDSearch):
         return ascribe_response
 
     def _ascribe_id_from_***REMOVED***_id(self, stl_id):
+        # given a ***REMOVED*** ID, get the ascribe ID from the elasticsearch db
         r = self.es.search(index=self.index_name,
                       body={'query': {'match': {'stl_id': stl_id}}},
                       fields=['ascribe_id'], size=1)
         if r['hits']['total'] > 0:
             return r['hits']['hits'][0]['fields']['ascribe_id'][0]
         else:
+            # if no matching ID is found, return none
             return None
 
     def _download_and_decrypt(self, stl_id):
+        # pull an encrypted file from ascribe BY STILNEST ID, and return the decrypted data
         _id = self._ascribe_id_from_***REMOVED***_id(stl_id)
         res = self.ascribe_wrapper.retrieve_piece(_id)
         content = requests.get(res['piece']['digital_work']['url'])
@@ -169,11 +172,15 @@ class APIOperations(ThreeDSearch):
             return {stl_file: self.best_single_image(res)}
 
     def render(self, stl_file=None, stl_id=None):
+        # return a nice rendering.  If an stl_id is provided, pull from ascribe,
+        # otherwise stl_file must be specified
         try:
+            # set up temporary files
             input_directory = tempfile.mkdtemp()
             output_dir = tempfile.mkdtemp()
-
             temporary_stl = tempfile.mkstemp(suffix='.stl')[-1]
+
+            # download and decrypt
             if stl_id:
                 with open(temporary_stl, 'wb') as f:
                     f.write(self._download_and_decrypt(stl_id))
@@ -181,6 +188,7 @@ class APIOperations(ThreeDSearch):
 
             copy(stl_file, input_directory)
 
+            # render here
             blender_args = ['blender',
                     '-b', '-P', 'generate_images_for_humans.py', '--',
                     '-d', input_directory,
@@ -190,6 +198,7 @@ class APIOperations(ThreeDSearch):
             spawnvp(P_WAIT, 'blender', blender_args)
 
         finally:
+            # clean up
             rmtree(input_directory)
             remove(temporary_stl)
 
