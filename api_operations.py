@@ -48,6 +48,16 @@ class APIOperations(ThreeDSearch):
         self.bucket = [x for x in self.conn.get_all_buckets() if x.name == bucket_name][0]
 
     def add(self, stl_id, stl_url=None, stl_file=None, origin=None, doc_type='image'):
+        """
+        Add an STL to Ascribe and add renders to an elasticsearch database for matching
+
+        :param stl_id: an identifier for the STL file. must be unique.
+        :param stl_url: the PUBLIC url pointing to the STL file (optional)
+        :param stl_file: path to an STL file. ignored if stl_url is provided, but one must be given (optional)
+        :param origin: specify an origin, mainly for bookkeeping (optional)
+        :param doc_type: specify the doc_type for elasticsearch renders. You shouldn't need to change this
+        :return: the response from Ascribe, or None if the stl_id already exists
+        """
         # check if stl_id exists, and add nothing if it does
         try:
             if self._ascribe_id_from_***REMOVED***_id(stl_id):
@@ -158,22 +168,45 @@ class APIOperations(ThreeDSearch):
         content = requests.get(res['piece']['digital_work']['url'])
         return self.gpg.decrypt(content.content).data
 
-    def search(self, stl_file=None, return_raw=False, ranking='single'):
+    def search(self, stl_id=None, stl_file=None, return_raw=False, ranking='single'):
+        """
+        Search by ID or STL file for similar designs
+        :param stl_id: an identifier for the STL file. Will attempt to download STL file from ascribe (optional)
+        :param stl_file: path to an STL file. ignored if stl_id is provided, but you must provide one of the two (optional)
+        :param return_raw: if True, return raw scores per image instead of a composite score (default False)
+        :param ranking: ranking system to use. No need to changes this
+        :return: list of matches, or None
+        """
         # TODO: include origin field
-        input_directory = tempfile.mkdtemp()
-        copy(stl_file, input_directory)
-        images_directory = self.generate_images(input_directory)
-        res = self.search_images(images_directory)
-        rmtree(input_directory)
-        rmtree(images_directory)
+        try:
+            input_directory = tempfile.mkdtemp()
+            temporary_stl = tempfile.mkstemp(suffix='.stl')[-1]
+
+            # download and decrypt
+            if stl_id:
+                with open(temporary_stl, 'wb') as f:
+                    f.write(self._download_and_decrypt(stl_id))
+                    stl_file = temporary_stl
+
+            copy(stl_file, input_directory)
+            images_directory = self.generate_images(input_directory)
+            res = self.search_images(images_directory)
+        finally:
+            rmtree(input_directory)
+            rmtree(images_directory)
         if return_raw:
             return res
         elif ranking == 'single':
             return {stl_file: self.best_single_image(res)}
 
     def render(self, stl_file=None, stl_id=None):
-        # return a nice rendering.  If an stl_id is provided, pull from ascribe,
-        # otherwise stl_file must be specified
+        """
+        Return a nice rendering. If an stl_id is provided, pull from ascribe,
+        otherwise stl_file must be specified
+        :param stl_file:
+        :param stl_id:
+        :return: temp directory location containing rendering
+        """
         try:
             # set up temporary files
             input_directory = tempfile.mkdtemp()
