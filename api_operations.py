@@ -164,6 +164,13 @@ class APIOperations(ThreeDSearch):
         :param ranking: ranking system to use. No need to changes this
         :return: list of matches, or None
         """
+
+        # add index names if necessary (this is a hack, should really be in image_search)
+        if 'index_names' not in self.ses.__dict__:
+            example_res = self.es.search(index=self.index_name, size=1)
+            if example_res['hits']['total'] > 0:
+                self.ses.index_names = [field for field in example_res['hits']['hits'][0]['_source'].keys() if field.find('simple') > -1]
+
         # TODO: include origin field
         try:
             input_directory = tempfile.mkdtemp()
