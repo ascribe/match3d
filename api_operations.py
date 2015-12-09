@@ -47,6 +47,11 @@ class APIOperations(ThreeDSearch):
         # the 'get_bucket' by name function doesn't work in eu-central-1, this is a workaround
         self.bucket = [x for x in self.conn.get_all_buckets() if x.name == bucket_name][0]
 
+    """
+    The following methods -- add, search, render, search_web -- form the basis of the API, and meeting
+    the terms of the Stilnest MOU.
+    """
+
     def add(self, stl_id, stl_url=None, stl_file=None, origin=None, doc_type='image'):
         """
         Add an STL to Ascribe and add renders to an elasticsearch database for matching
@@ -150,24 +155,6 @@ class APIOperations(ThreeDSearch):
 
         return ascribe_response
 
-    def _ascribe_id_from_***REMOVED***_id(self, stl_id):
-        # given a ***REMOVED*** ID, get the ascribe ID from the elasticsearch db
-        r = self.es.search(index=self.index_name,
-                      body={'query': {'match': {'stl_id': stl_id}}},
-                      fields=['ascribe_id'], size=1)
-        if r['hits']['total'] > 0:
-            return r['hits']['hits'][0]['fields']['ascribe_id'][0]
-        else:
-            # if no matching ID is found, return none
-            return None
-
-    def _download_and_decrypt(self, stl_id):
-        # pull an encrypted file from ascribe BY STILNEST ID, and return the decrypted data
-        _id = self._ascribe_id_from_***REMOVED***_id(stl_id)
-        res = self.ascribe_wrapper.retrieve_piece(_id)
-        content = requests.get(res['piece']['digital_work']['url'])
-        return self.gpg.decrypt(content.content).data
-
     def search(self, stl_id=None, stl_file=None, return_raw=False, ranking='single'):
         """
         Search by ID or STL file for similar designs
@@ -197,7 +184,7 @@ class APIOperations(ThreeDSearch):
         if return_raw:
             return res
         elif ranking == 'single':
-            return {stl_file: self.best_single_image(res)}
+            return {stl_file: self._best_single_image(res)}
 
     def render(self, stl_file=None, stl_id=None):
         """
@@ -237,7 +224,28 @@ class APIOperations(ThreeDSearch):
 
         return output_dir
 
-    def best_single_image(self, results, n_per_view=5):
+    def search_web(self, stl_id):
+        raise NotImplementedError
+
+    def _ascribe_id_from_***REMOVED***_id(self, stl_id):
+        # given a ***REMOVED*** ID, get the ascribe ID from the elasticsearch db
+        r = self.es.search(index=self.index_name,
+                      body={'query': {'match': {'stl_id': stl_id}}},
+                      fields=['ascribe_id'], size=1)
+        if r['hits']['total'] > 0:
+            return r['hits']['hits'][0]['fields']['ascribe_id'][0]
+        else:
+            # if no matching ID is found, return none
+            return None
+
+    def _download_and_decrypt(self, stl_id):
+        # pull an encrypted file from ascribe BY STILNEST ID, and return the decrypted data
+        _id = self._ascribe_id_from_***REMOVED***_id(stl_id)
+        res = self.ascribe_wrapper.retrieve_piece(_id)
+        content = requests.get(res['piece']['digital_work']['url'])
+        return self.gpg.decrypt(content.content).data
+
+    def _best_single_image(self, results, n_per_view=5):
         scores = {}
         for result in results:
             for i in range(n_per_view):
