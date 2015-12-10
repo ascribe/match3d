@@ -1,80 +1,75 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: https://www.ascribe.io/***REMOVED***/api
 
 # ***REMOVED***-sylvain
 
 Polls is a simple API allowing consumers to view polls and vote in them.
 
-## Questions Collection [/questions]
+## Designs Collection [/designs]
 
-### List All Questions [GET]
+### List All Designs [GET]
+
+Not yet implemented
 
 + Response 200 (application/json)
 
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
-            }
-        ]
+### Create a New Design [POST]
 
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+You may create your own design ...
 
 + Request (application/json)
 
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
+    + Attributes
+        + stereo_lithographic_id (string, required) - an identifier for the STL file. must be unique.
+        + stereo_lithographic_url (string, required) - the PUBLIC url pointing to the STL file (optional)
+
+    + Header
+        
+            Authorization: <your_api_token>
+    
+    + Body
+        
+            {
+                "stereo_lithographic_id": "abc-123-xyz",
+                "stereo_lithographic_url": "https://3dmodel.stl"
+            }
 
 + Response 201 (application/json)
 
-    + Headers
 
-            Location: /questions/2
+### Search a Design [GET /designs/search]
 
+You may search your own design ...
+
++ Request (application/json)
+
+    + Attributes
+        + stereo_lithographic_id (string, required) - an identifier for the STL file. must be unique.
+
+    + Header
+        
+            Authorization: <your_api_token>
+    
     + Body
-
+        
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
+                "stereo_lithographic_id": "abc-123-xyz",
             }
+
++ Response 200 (application/json)
+
+
+### Retrieve a Design [GET /designs/{stl_id}]
+
+Not yet implemented
+
++ Response 200 (application/json)
+
+
+### Render a Design [GET /designs/{stl_id}/render]
+
+Renders an STL file into images. The input is an STL file.
+The output is three or more images, rendered from various angles.
+
++ Response 200 (application/json)
+
