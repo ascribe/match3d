@@ -1,6 +1,6 @@
 from three_d_match import ThreeDSearch
 from shutil import copy
-from elasticsearch.helpers import bulk
+from elasticsearch.helpers import bulk, scan
 from elasticsearch.exceptions import NotFoundError
 from os.path import join, abspath, expanduser
 from os import listdir, spawnvp, P_WAIT, getenv, remove
@@ -233,6 +233,18 @@ class APIOperations(ThreeDSearch):
 
     def search_web(self, stl_id):
         raise NotImplementedError
+
+    def list_designs(self):
+        d = {}
+        s = scan(self.es, index=self.index_name)
+        for r in s:
+            d[r['_source']['stl_id']] = r['_source']['ascribe_id']
+
+        result = []
+        for key in d:
+            result.append({'design_id': key, 'ascribe_id': d[key]})
+
+        return result
 
     def _ascribe_id_from_***REMOVED***_id(self, stl_id):
         # given a ***REMOVED*** ID, get the ascribe ID from the elasticsearch db
