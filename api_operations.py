@@ -235,6 +235,11 @@ class APIOperations(ThreeDSearch):
         raise NotImplementedError
 
     def list_designs(self):
+        """
+        Return a list designs in corpus
+
+        :return: [{"design_id": "abc-123-xyz", "ascribe_id": 12345}, {...}, ...]
+        """
         d = {}
         s = scan(self.es, index=self.index_name)
         for r in s:
