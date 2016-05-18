@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  3dm:
+    build:
+      context: .
+    volumes:
+      - .:/usr/src/app/
+    environment:
+      ES_HOSTS: es
+  es:
+    image: elasticsearch

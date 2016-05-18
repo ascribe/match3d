@@ -2,7 +2,7 @@ from three_d_match import ThreeDSearch
 from shutil import copy
 from elasticsearch.helpers import bulk, scan
 from os.path import join, abspath, expanduser
-from os import listdir, remove
+from os import listdir, remove, environ
 from image_match.signature_database_base import make_record
 import tempfile
 from shutil import rmtree
@@ -10,7 +10,7 @@ import requests
 
 
 class APIOperations(ThreeDSearch):
-    def __init__(self, es_nodes=['localhost'],
+    def __init__(self, es_nodes=environ.get('ES_HOSTS', 'localhost'),
                  index_name='match3d',
                  cutoff=0.5):
 
@@ -47,6 +47,8 @@ class APIOperations(ThreeDSearch):
 
             # copy the supplied stl file or requested data to a temp dir
             copy(stl_file, input_directory)
+
+            # TODO remove, as it seems to be unused
             path = join(input_directory, stl_file)
 
             # set up and run the rendering process. fork and wait for completion

@@ -5,7 +5,8 @@ It allows you to store and search 3D models (STL files) for similar designs.
 
 ## Requirements
 
-We hope to streamline the setup process soon. In the meantime, follow these steps:
+We hope to streamline the setup process soon. In the meantime, follow these
+steps, or use [docker](#using-docker).
 
 ### image-match
 
@@ -30,6 +31,20 @@ Install the requests library if you don't already have it:
 
 ```sh
 pip install requests
+```
+
+## Using Docker
+
+Run `elasticsearch`:
+
+```bash
+$ docker-compose up -d es
+```
+
+Then to start an `ipython` session:
+
+```bash
+$ docker-compose run --rm 3dm ipython
 ```
 
 ## Basic usage
