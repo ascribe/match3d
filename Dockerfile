@@ -13,11 +13,15 @@ RUN tar -jxvf blender.tar.bz2 -C /usr/local/blender --strip-components=1
 RUN rm blender.tar.bz2
 ENV PATH /usr/local/blender:$PATH
 
-# image match
+# scientific libs
 RUN apt-get update && apt-get install -y libblas-dev liblapack-dev gfortran
 RUN pip install --upgrade pip
 RUN pip install numpy scipy
-RUN pip install image_match requests ipython ipdb
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
+
+COPY match3d /usr/src/app/match3d
+COPY setup.py /usr/src/app/setup.py
+
+RUN pip install --no-cache-dir -e .[dev]

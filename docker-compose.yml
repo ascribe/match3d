@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  3dm:
+  m3d:
     build:
       context: .
     volumes:
