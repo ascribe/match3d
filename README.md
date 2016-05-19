@@ -1,6 +1,6 @@
-# 3D-match
+# match3d
 
-3D-match is an extension for our [image matching library](https://github.com/ascribe/image-match).
+`match3d` is an extension for our [image matching library](https://github.com/ascribe/image-match).
 It allows you to store and search 3D models (STL files) for similar designs.
 
 ## Requirements
@@ -16,7 +16,7 @@ and the scientific python libraries set up.
 
 ### blender
 
-3D-match uses [blender](https://www.blender.org/) for rendering.  The blender packages are out-of-date
+`match3d` uses [blender](https://www.blender.org/) for rendering.  The blender packages are out-of-date
 on Ubuntu 15.10, so to be safe install blender as explained [here](http://tipsonubuntu.com/2015/04/03/install-blender-2-74-ubuntu-14-04linux-mint-17/):
 
 ```sh
@@ -48,7 +48,7 @@ $ docker-compose run --rm m3d ipython
 
 ## Basic usage
 
-3D-match is essentially a collection of blender scripts for generating views of 3D models, and Python scripts
+`match3d` is essentially a collection of blender scripts for generating views of 3D models, and Python scripts
 for turning those into something searchable by image-match.
 
 ### API operations

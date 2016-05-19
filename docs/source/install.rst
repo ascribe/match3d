@@ -16,8 +16,8 @@ libraries set up.
 
 blender
 ^^^^^^^
-3D-match uses `blender`_ for rendering. The blender packages are out-of-date on
-Ubuntu 15.10, so to be safe install blender as explained
+``match3d`` uses `blender`_ for rendering. The blender packages are out-of-date
+on Ubuntu 15.10, so to be safe install blender as explained
 `here <http://tipsonubuntu.com/2015/04/03/install-blender-2-74-ubuntu-14-04linux-mint-17/>`_:
 
 .. code-block:: bash
