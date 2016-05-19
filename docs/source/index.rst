@@ -15,6 +15,8 @@ Contents
 
     install
     usage
+    imagematchgen
+    imagegenhum
     docs
 
 

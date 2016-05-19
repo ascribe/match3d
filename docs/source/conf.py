@@ -10,6 +10,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
+    'sphinx.ext.mathjax',
 ]
 
 templates_path = ['_templates']
