@@ -1,5 +1,5 @@
-Documentation
-=============
+About this Documentation
+========================
 
 This section contains instructions to build and view the documentation locally,
 using the ``docker-compose.yml`` file of the ``image-match`` repository:
