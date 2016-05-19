@@ -10,3 +10,15 @@ services:
       ES_HOSTS: es
   es:
     image: elasticsearch
+  bdocs:
+    build: .
+    volumes:
+      - .:/usr/src/app/
+    working_dir: /usr/src/app/docs
+    command: make html
+  vdocs:
+    image: nginx
+    ports:
+      - '50080:80'
+    volumes:
+      - ./docs/build/html:/usr/share/nginx/html
