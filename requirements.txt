@@ -1,4 +1,4 @@
-elasticsearch
-ascribe
-boto
-python-gnupg
+numpy
+scipy
+image_match
+requests

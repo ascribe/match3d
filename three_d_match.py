@@ -2,13 +2,13 @@ __author__ = 'ryan'
 
 import tempfile
 import elasticsearch
-from image_match.signature_database import SignatureES
+from image_match.elasticsearch_driver import SignatureES
 from os import spawnvp, P_WAIT, listdir, rmdir, remove, walk
 from os.path import expanduser, abspath, join, splitext, dirname, basename
 
 
 class ThreeDSearch(object):
-    def __init__(self, es_nodes=['localhost'], index_name='***REMOVED***_tester', cutoff=0.5):
+    def __init__(self, es_nodes=['localhost'], index_name='match3d', cutoff=0.5):
         self.es = elasticsearch.Elasticsearch(es_nodes)
         self.ses = SignatureES(self.es, index=index_name)
         self.ses.distance_cutoff = cutoff
@@ -32,7 +32,7 @@ class ThreeDSearch(object):
         img_paths = [join(_images_directory, x) for x in listdir(_images_directory) if splitext(x)[-1] == '.png']
         res = []
         for img_path in img_paths:
-            res.append(self.ses.similarity_search(img_path, n_parallel_words=5, word_limit=60))
+            res.append(self.ses.search_image(img_path))
         return res
 
     @staticmethod
