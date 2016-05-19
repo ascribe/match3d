@@ -25,12 +25,11 @@ sudo apt-get update
 sudo apt-get install blender
 ```
 
-### requests
-
-Install the requests library if you don't already have it:
+### match3d
+To install `match3d` along with its python dependencies:
 
 ```sh
-pip install requests
+pip install -e .
 ```
 
 ## Using Docker
@@ -44,7 +43,7 @@ $ docker-compose up -d es
 Then to start an `ipython` session:
 
 ```bash
-$ docker-compose run --rm 3dm ipython
+$ docker-compose run --rm m3d ipython
 ```
 
 ## Basic usage
@@ -57,7 +56,7 @@ for turning those into something searchable by image-match.
 The most important functionality is provided in `api_operations.py`.
 
 ```python
-from api_operations import APIOperations
+from match3d.api_operations import APIOperations
 api = APIOperations(index_name='3d_test')
 ```
 

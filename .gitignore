@@ -1,2 +1,3 @@
 # Files and directories that git should ignore
 /__pycache__
+*.egg*
