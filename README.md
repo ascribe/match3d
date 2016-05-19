@@ -10,9 +10,9 @@ It allows you to store and search 3D models (STL files) for similar designs.
 ## Documentation
 Documentation is available at https://match3d.readthedocs.io/
 
-**Key links**:
+## Key links
 
-* [Installation](http://match3d.readthedocs.io/en/latest/install.html)
-* [Basic usage](http://match3d.readthedocs.io/en/latest/usage.html)
-* [About Image Match Generator](http://match3d.readthedocs.io/en/latest/imagematchgen.html)
-* [Generator of Images for Humans](http://match3d.readthedocs.io/en/latest/imagegenhum.html)
+### [Installation](http://match3d.readthedocs.io/en/latest/install.html)
+### [Basic usage](http://match3d.readthedocs.io/en/latest/usage.html)
+### [About Image Match Generator](http://match3d.readthedocs.io/en/latest/imagematchgen.html)
+### [Generator of Images for Humans](http://match3d.readthedocs.io/en/latest/imagegenhum.html)
