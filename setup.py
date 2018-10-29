@@ -61,9 +61,8 @@ setup(
     url='https://github.com/ascribe/3dmatch/',
     author='Ryan Henderson',
     author_email='ryan@ascribe.io',
-    license='Apache License 2.0',
+    license='Apache2',
     zip_safe=True,
-
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
